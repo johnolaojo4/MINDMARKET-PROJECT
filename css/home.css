@@ -421,15 +421,6 @@ nav {
   font-weight: 700;
 }
 
-.section4 .title a {
-  color: #3b82f6;
-  font-weight: 600;
-  font-size: 1.1rem;
-  text-decoration: none;
-  transition: color 0.3s;
-  position: relative;
-}
-
 .section4 .title a:hover {
   color: #1d4ed8;
 }
