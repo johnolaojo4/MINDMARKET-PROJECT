@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign-In</title>
+    <link rel="icon" href="images/favicon-32x32.png" type="image/png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <link rel="stylesheet" href="css/sign-in.css" />
+  </head>
+  <body>
+    <div class="logo">
+      <a href="index.html">
+        <img src="images/MMlogo2.svg" alt="black MMlogo" />
+      </a>
+    </div>
+
+    <div class="container">
+      <h1 class="signin-title">Welcome Back</h1>
+      <form id="signInForm">
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input
+            type="email"
+            id="email"
+            placeholder="Enter your email"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input
+            type="password"
+            id="password"
+            placeholder="Enter your password"
+            required
+          />
+        </div>
+
+        <button type="submit" class="signin-btn">Sign In</button>
+      </form>
+
+      <!-- Message placeholder -->
+      <div id="messageBox" class="message"></div>
+
+      <div class="signup-link">
+        Don’t have an account? <a href="sign-up.html">Sign Up</a>
+      </div>
+    </div>
+
+    <script>
+      const form = document.getElementById("signInForm");
+      const messageBox = document.getElementById("messageBox");
+
+      function showMessage(msg, type) {
+        messageBox.textContent = msg;
+        messageBox.className = `message ${type}`;
+        messageBox.style.display = "block";
+      }
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+
+        try {
+          const res = await fetch("http://localhost:5000/api/auth/signin", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password }),
+          });
+
+          const data = await res.json();
+
+          if (res.ok) {
+            localStorage.setItem("token", data.token);
+            showMessage("Login successful! Redirecting...", "success");
+
+            // Redirect after short delay
+            setTimeout(() => {
+              window.location.href = "dashboard.html";
+            }, 1500);
+          } else {
+            showMessage(data.message || "Login failed. Try again.", "error");
+          }
+        } catch (err) {
+          console.error(err);
+          showMessage("Server error. Please try again later.", "error");
+        }
+      });
+    </script>
+  </body>
+</html>

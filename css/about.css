@@ -159,8 +159,8 @@ nav {
   padding: 40px;
 }
 
-.main-title {
-  font-size: 4.5rem;
+.content-section .main-title {
+  font-size: 4rem;
   font-weight: 800;
   color: #000;
   margin-bottom: 40px;
