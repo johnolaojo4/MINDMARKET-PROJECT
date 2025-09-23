@@ -3,7 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Mind Market | About Us</title>
+    <meta name="description" content="" />
+    <title>Mind Market | Idea Details</title>
     <link rel="icon" href="images/favicon-32x32.png" type="image/png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -18,9 +19,10 @@
       referrerpolicy="no-referrer"
     />
 
-    <link rel="stylesheet" href="css/about.css" />
+    <link rel="stylesheet" href="css/detail.css" />
   </head>
   <body>
+    <!-- NAVBAR -->
     <header>
       <nav>
         <div class="logo">
@@ -34,7 +36,7 @@
           <a href="explore-skill.html"
             >Explore Skills <i class="fa-solid fa-angle-down"></i
           ></a>
-          <a href="#">About Us</a>
+          <a href="about-us.html">About Us</a>
         </div>
         <div class="auth-links">
           <a href="sign-in.html" class="sign-in">Sign In</a>
@@ -43,130 +45,110 @@
       </nav>
     </header>
 
-    <div class="section1">
-      <div class="text">
-        <h2>Empowering your Success by marketing your lucrative Ideas.</h2>
-        <p>
-          Join the rest of the 10million users all over the world today, to
-          start making living out of your innovative ideas.
-        </p>
-      </div>
-      <div class="photo-grid">
-        <div class="item item1">
-          <img src="images/pic1.jpg" alt="Person smiling" />
-        </div>
-        <div class="item item2">
-          <img src="images/pic2.jpg" alt="Team meeting" />
-        </div>
-        <div class="item item3">
-          <img src="images/pic3.jpg" alt="Businesswoman with paper" />
-        </div>
-      </div>
-    </div>
-
-    <div class="section2">
-      <div class="image-section">
-        <img src="images/pic2.jpg" alt="" class="team-image" />
-      </div>
-
-      <div class="content-section">
-        <h1 class="main-title">About us</h1>
-
-        <p class="intro-paragraph">
-          At <span class="company-name">MindMarket</span>, we believe that every
-          idea has value, no matter how small, unfinished, or unconventional it
-          may seem. <br />
-          Too often, brilliant concepts are forgotten in notebooks, buried in
-          files, or left unspoken. Our mission is to give those ideas a new
-          stage, connecting dreamers, thinkers, and creators in a global
-          marketplace where innovation never goes to waste.
-        </p>
-      </div>
-    </div>
-
-    <div class="section3">
-      <div class="header-section">
-        <h1 class="main-title">Expand your ideas<br />with our Expertise</h1>
-        <p class="subtitle">
-          We believe no idea should be forgotten. Our marketplace gives your
-          concepts a new stage — to inspire, connect, and grow.
-        </p>
-      </div>
-
-      <div class="cards-container">
-        <!-- Who We Are Card -->
-        <div class="card">
-          <img
-            src="images/pic4.jpg"
-            alt="Hands reaching for ideas - representing innovation and curiosity"
-            class="card-image"
-          />
-          <h3 class="card-title">Who We Are</h3>
-          <p class="card-text">
-            We are a community of dreamers, thinkers, and creators who believe
-            that innovation should never be left behind. At MindMarket, we
-            provide a home for ideas.
-          </p>
-          <a href="#" class="learn-more-btn">Learn more</a>
-        </div>
-
-        <!-- Our Mission Card -->
-        <div class="card mission-card">
-          <div class="mission-content">
-            <h3 class="card-title">Our Mission</h3>
-            <p class="card-text">
-              Our mission is to unlock the hidden value of ideas by creating a
-              global marketplace where creativity is shared, nurtured, and
-              transformed into real solutions.
-            </p>
-            <br />
-            <a href="#" class="learn-more-btn">Learn more</a>
+    <div class="details-container">
+      <!-- Header Section (Author, Date, Price, Tags) -->
+      <div class="details-header">
+        <div class="header-left">
+          <div class="details-author">
+            <img id="author-img" src="" alt="Author" />
+            <div class="author-details">
+              <span id="author-name"></span>
+              <div class="details-date">
+                <i class="fa-regular fa-calendar"></i>
+                <span id="idea-date"></span>
+              </div>
+            </div>
           </div>
-
-          <div class="mission-illustration">
-            <img
-              src="images/pic5.jpg"
-              alt="Mission and Vision puzzle pieces connecting"
-              class="puzzle-illustration"
-            />
+          <div class="details-tags" id="idea-tags">
+            <!-- Tags populated by JavaScript -->
           </div>
         </div>
 
-        <!-- Our Vision Card -->
-        <div class="card">
-          <img
-            src="images/pic6.jpg"
-            alt="Business partnership handshake with growth chart representing vision and success"
-            class="card-image"
-          />
-          <h3 class="card-title">Our Vision</h3>
-          <p class="card-text">
-            Our vision is to be the world's leading hub for ideas, a place where
-            imagination meets opportunity. We strive to build a future where
-            every idea — big or small.
-          </p>
-          <a href="#" class="learn-more-btn">Learn more</a>
+        <div class="header-right">
+          <div class="details-price" id="idea-price"></div>
+          <button class="purchase-btn">Purchase</button>
+        </div>
+      </div>
+
+      <!-- Main Idea Image -->
+      <div class="details-image">
+        <img id="idea-image" src="" alt="Idea Image" />
+      </div>
+
+      <!-- Main Content -->
+      <div class="details-content">
+        <h2 id="idea-title"></h2>
+
+        <p><strong>Introduction:</strong></p>
+        <p id="idea-intro"></p>
+
+        <h3>Detailed Description</h3>
+        <p id="idea-description"></p>
+
+        <h3>Features</h3>
+        <ul id="idea-features">
+          <!-- Features populated by JavaScript -->
+        </ul>
+
+        <h3>Problems it Solves</h3>
+        <p id="idea-problems"></p>
+
+        <h3>Potential Impacts</h3>
+        <p id="idea-impacts"></p>
+      </div>
+
+      <!-- Likes & Comments Section -->
+      <div class="comments-section">
+        <h3>Likes and Comments</h3>
+
+        <div class="comment-stats">
+          <div class="stat-item">
+            <span class="stat-number" id="likes-count"></span>
+            <span>❤️</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-number" id="bookmarks-count"></span>
+            <span>📚</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-number" id="shares-count"></span>
+            <span>🔗</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-number" id="comments-count"></span>
+            <span>💬</span>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="details-actions">
+          <button id="like-btn">
+            ❤️ Like (<span id="action-likes-count"></span>)
+          </button>
+          <button id="comment-btn">💬 Comment</button>
+          <button id="share-btn">🔗 Share</button>
+        </div>
+
+        <h3>Comments</h3>
+        <div class="comments-list" id="comments-list">
+          <!-- Comments populated by JavaScript -->
         </div>
       </div>
     </div>
 
-    <div class="stats">
-      <div class="stat-item">
-        <div class="stat-number">3millio+</div>
-        <div class="stat-label">Trusted Users</div>
+    <!-- About the Author -->
+    <div class="about-author">
+      <h3>About The Author</h3>
+      <div class="author-profile">
+        <img id="author-profile-img" src="" alt="Author Profile" />
+        <div class="author-info">
+          <h4 id="author-profile-name"></h4>
+          <p class="join-date" id="join-date"></p>
+        </div>
       </div>
-
-      <div class="stat-item">
-        <div class="stat-number">8millio+</div>
-        <div class="stat-label">Innovative Ideas</div>
-      </div>
-
-      <div class="stat-item">
-        <div class="stat-number">4000+</div>
-        <div class="stat-label">Trusted Partners</div>
-      </div>
+      <p id="author-bio"></p>
     </div>
-
+    <!-- FOOTER -->
     <footer class="footer">
       <div class="footer-container">
         <!-- Logo Section -->
@@ -244,5 +226,8 @@
         <p>&copy; 2024 MindMarket. All rights reserved.</p>
       </div>
     </footer>
+
+    <!-- Scripts -->
+    <script src="js/idea-detail.js"></script>
   </body>
 </html>
