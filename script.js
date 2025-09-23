@@ -34,7 +34,8 @@ class UserProfileManager {
       this.showForm(); // Show the registration form for editing
     });
 
-    logoutBtn?.addEventListener("click", () => { // Attach logout event listener (on dashboard)
+    logoutBtn?.addEventListener("click", () => {
+      // Attach logout event listener (on dashboard)
       this.logout();
     });
 
@@ -44,32 +45,35 @@ class UserProfileManager {
     this.setupConsultationHandlers();
 
     // General form validation feedback setup
-    document.querySelectorAll("input[required], select[required], textarea[required]").forEach((input) => {
-      input.addEventListener("blur", function () {
-        if (!this.value.trim()) {
-          this.classList.add("error");
-          this.classList.remove("success");
-        } else {
-          this.classList.remove("error");
-          this.classList.add("success");
-        }
-      });
+    document
+      .querySelectorAll("input[required], select[required], textarea[required]")
+      .forEach((input) => {
+        input.addEventListener("blur", function () {
+          if (!this.value.trim()) {
+            this.classList.add("error");
+            this.classList.remove("success");
+          } else {
+            this.classList.remove("error");
+            this.classList.add("success");
+          }
+        });
 
-      input.addEventListener("input", function () {
-        if (this.value.trim()) {
-          this.classList.remove("error");
-          this.classList.add("success");
-        }
+        input.addEventListener("input", function () {
+          if (this.value.trim()) {
+            this.classList.remove("error");
+            this.classList.add("success");
+          }
+        });
       });
-    });
 
     // Clear error messages when user starts typing
     document.addEventListener("input", (e) => {
-      const formElement = e.target.closest("#userForm") || e.target.closest("#signInForm");
+      const formElement =
+        e.target.closest("#userForm") || e.target.closest("#signInForm");
       if (formElement) {
         const existingMessage = document.querySelector(".message-alert.error");
         if (existingMessage) {
-          existingMessage.style.opacity = '0.5'; // Soften error message, not remove immediately
+          existingMessage.style.opacity = "0.5"; // Soften error message, not remove immediately
         }
       }
     });
@@ -79,27 +83,28 @@ class UserProfileManager {
   }
 
   handleInitialDynamicFormVisibility() {
-      const consultationRateSelect = document.getElementById('consultationRate');
-      const customRateGroup = document.getElementById('customRateGroup');
-      if (consultationRateSelect && customRateGroup) {
-          if (consultationRateSelect.value === 'custom') {
-              customRateGroup.style.display = 'block';
-          } else {
-              customRateGroup.style.display = 'none';
-          }
+    const consultationRateSelect = document.getElementById("consultationRate");
+    const customRateGroup = document.getElementById("customRateGroup");
+    if (consultationRateSelect && customRateGroup) {
+      if (consultationRateSelect.value === "custom") {
+        customRateGroup.style.display = "block";
+      } else {
+        customRateGroup.style.display = "none";
       }
+    }
 
-      const investmentInterestsSelect = document.getElementById('investmentInterests');
-      const customInterestGroup = document.getElementById('customInterestGroup');
-      if (investmentInterestsSelect && customInterestGroup) {
-          if (investmentInterestsSelect.value === 'others') {
-              customInterestGroup.style.display = 'block';
-          } else {
-              customInterestGroup.style.display = 'none';
-          }
+    const investmentInterestsSelect = document.getElementById(
+      "investmentInterests"
+    );
+    const customInterestGroup = document.getElementById("customInterestGroup");
+    if (investmentInterestsSelect && customInterestGroup) {
+      if (investmentInterestsSelect.value === "others") {
+        customInterestGroup.style.display = "block";
+      } else {
+        customInterestGroup.style.display = "none";
       }
+    }
   }
-
 
   setupFileHandlers() {
     const profileImageInput = document.getElementById("profileImage");
@@ -189,14 +194,14 @@ class UserProfileManager {
   openConsultationModal() {
     const consultationModal = document.getElementById("consultationModal");
     if (consultationModal) {
-      consultationModal.classList.add('show');
+      consultationModal.classList.add("show");
     }
   }
 
   closeConsultationModal() {
     const consultationModal = document.getElementById("consultationModal");
     if (consultationModal) {
-      consultationModal.classList.remove('show');
+      consultationModal.classList.remove("show");
     }
   }
 
@@ -534,10 +539,12 @@ class UserProfileManager {
         }
 
         if (data.missing) {
-            const missingFields = Object.keys(data.missing).filter(key => data.missing[key]);
-            if (missingFields.length > 0) {
-                errorMessage += ` (Missing: ${missingFields.join(", ")})`;
-            }
+          const missingFields = Object.keys(data.missing).filter(
+            (key) => data.missing[key]
+          );
+          if (missingFields.length > 0) {
+            errorMessage += ` (Missing: ${missingFields.join(", ")})`;
+          }
         }
 
         this.showMessage(`❌ ${errorMessage}`, "error");
@@ -597,17 +604,21 @@ class UserProfileManager {
     `;
 
     let targetElement = document.getElementById("userForm");
-    if (!targetElement) { // If not on registration form, try to find a suitable place on the dashboard or body
-      targetElement = document.querySelector(".dashboard-container") || document.body;
-      if (targetElement.id === "dashboard") { // If dashboard container exists, insert at its beginning
-          targetElement.insertBefore(messageDiv, targetElement.firstChild);
-      } else { // Fallback to inserting at body beginning for general pages
-          document.body.insertBefore(messageDiv, document.body.firstChild);
+    if (!targetElement) {
+      // If not on registration form, try to find a suitable place on the dashboard or body
+      targetElement =
+        document.querySelector(".dashboard-container") || document.body;
+      if (targetElement.id === "dashboard") {
+        // If dashboard container exists, insert at its beginning
+        targetElement.insertBefore(messageDiv, targetElement.firstChild);
+      } else {
+        // Fallback to inserting at body beginning for general pages
+        document.body.insertBefore(messageDiv, document.body.firstChild);
       }
-    } else { // Insert before the form on registration/edit pages
+    } else {
+      // Insert before the form on registration/edit pages
       targetElement.parentNode.insertBefore(messageDiv, targetElement);
     }
-
 
     const removeTime = type === "success" ? 3000 : 7000;
     setTimeout(() => {
@@ -916,25 +927,35 @@ class UserProfileManager {
   }
 
   checkAuthStatus() {
-    const token = localStorage.getItem('token');
-    const currentPage = window.location.pathname.split('/').pop();
+    const token = localStorage.getItem("token");
+    const currentPage = window.location.pathname.split("/").pop();
 
     if (!token) {
-      if (currentPage !== 'sign-in.html' && currentPage !== 'sign-up.html' && currentPage !== 'index.html') {
-        this.showMessage("You need to be signed in to access this page.", "error");
+      if (
+        currentPage !== "sign-in.html" &&
+        currentPage !== "sign-up.html" &&
+        currentPage !== "index.html"
+      ) {
+        this.showMessage(
+          "You need to be signed in to access this page.",
+          "error"
+        );
         setTimeout(() => {
           window.location.href = "sign-in.html";
         }, 1500);
       }
     } else {
-      if (currentPage === 'sign-in.html' || currentPage === 'sign-up.html') {
-        this.showMessage("You are already logged in. Redirecting to dashboard.", "success");
+      if (currentPage === "sign-in.html" || currentPage === "sign-up.html") {
+        this.showMessage(
+          "You are already logged in. Redirecting to dashboard.",
+          "success"
+        );
         setTimeout(() => {
-            window.location.href = "dashboard.html";
+          window.location.href = "dashboard.html";
         }, 1500);
-      } else if (currentPage === 'dashboard.html') {
-          // If on dashboard and authenticated, ensure dashboard is shown and populated
-          this.showDashboard();
+      } else if (currentPage === "dashboard.html") {
+        // If on dashboard and authenticated, ensure dashboard is shown and populated
+        this.showDashboard();
       }
     }
   }
@@ -945,7 +966,7 @@ class UserProfileManager {
     localStorage.removeItem("userProfileData");
     localStorage.removeItem("profileImage");
     localStorage.removeItem("consultationRequests");
-    
+
     this.userData = {};
 
     this.showMessage("You have been logged out successfully.", "success");
@@ -1000,16 +1021,16 @@ function showMessage(message, type) {
 
   let targetElement = document.getElementById("userForm");
   if (!targetElement) {
-    targetElement = document.querySelector(".dashboard-container") || document.body;
+    targetElement =
+      document.querySelector(".dashboard-container") || document.body;
     if (targetElement.id === "dashboard") {
-        targetElement.insertBefore(messageDiv, targetElement.firstChild);
+      targetElement.insertBefore(messageDiv, targetElement.firstChild);
     } else {
-        document.body.insertBefore(messageDiv, document.body.firstChild);
+      document.body.insertBefore(messageDiv, document.body.firstChild);
     }
   } else {
     targetElement.parentNode.insertBefore(messageDiv, targetElement);
   }
-
 
   const removeTime = type === "success" ? 3000 : 7000;
   setTimeout(() => {
