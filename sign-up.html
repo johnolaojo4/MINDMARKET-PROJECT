@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -29,7 +29,7 @@
     <div class="container">
       <h1 class="join-title">Create Account</h1>
 
-      <form id="signupForm">
+      <form id="userForm">
         <div class="form-group">
           <label for="username">Username</label>
           <input type="text" id="username" required />
@@ -57,44 +57,52 @@
     </div>
 
     <script>
-      const signupForm = document.getElementById("signupForm");
-      const messageBox = document.getElementById("messageBox");
+      document
+        .getElementById("userForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
 
-      // Define function BEFORE usage
-      function showMessage(message, type) {
-        messageBox.textContent = message;
-        messageBox.className = "message " + type;
-        messageBox.style.display = "block";
-      }
+          // Get form data
+          const formData = new FormData(this);
+          const userData = Object.fromEntries(formData.entries());
 
-      signupForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
+          try {
+            console.log("Sending data:", userData); // Debug log
 
-        const username = document.getElementById("username").value.trim();
-        const email = document.getElementById("email").value.trim();
-        const password = document.getElementById("password").value.trim();
+            const response = await fetch(
+              "http://localhost:5000/api/v1/auth/register",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Accept: "application/json",
+                },
+                body: JSON.stringify(userData),
+              }
+            );
 
-        try {
-          const res = await fetch("http://localhost:5000/api/auth/signup", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name: username, email, password }),
-          });
+            console.log("Response status:", response.status); // Debug log
 
-          const data = await res.json();
-          if (res.ok) {
-            showMessage("✅ " + data.message, "success");
-            setTimeout(() => {
-              window.location.href = "sign-in.html";
-            }, 1500);
-          } else {
-            showMessage("❌ " + data.message, "error");
+            const data = await response.json();
+            console.log("Response data:", data); // Debug log
+
+            if (response.ok && data.success) {
+              alert("Registration successful!");
+              // Store token if needed
+              localStorage.setItem("token", data.token);
+              localStorage.setItem("user", JSON.stringify(data.data));
+              // Redirect or show success message
+              window.location.href = "dashboard.html";
+            } else {
+              alert(
+                "Registration failed: " + (data.message || "Unknown error")
+              );
+            }
+          } catch (error) {
+            console.error("Fetch error:", error);
+            alert("Network error. Please check if the server is running.");
           }
-        } catch (err) {
-          console.error(err);
-          showMessage("⚠️ Something went wrong. Try again.", "error");
-        }
-      });
+        });
     </script>
   </body>
 </html>

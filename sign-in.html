@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -34,6 +34,7 @@
           <input
             type="email"
             id="email"
+            name="email"
             placeholder="Enter your email"
             required
           />
@@ -44,6 +45,7 @@
           <input
             type="password"
             id="password"
+            name="password"
             placeholder="Enter your password"
             required
           />
@@ -56,51 +58,290 @@
       <div id="messageBox" class="message"></div>
 
       <div class="signup-link">
-        Don’t have an account? <a href="sign-up.html">Sign Up</a>
+        Don't have an account? <a href="sign-up.html">Sign Up</a>
       </div>
     </div>
 
     <script>
-      const form = document.getElementById("signInForm");
-      const messageBox = document.getElementById("messageBox");
+      document
+        .getElementById("userForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
 
-      function showMessage(msg, type) {
-        messageBox.textContent = msg;
-        messageBox.className = `message ${type}`;
-        messageBox.style.display = "block";
+          // Show loading state
+          const submitBtn = this.querySelector('button[type="submit"]');
+          const originalBtnText = submitBtn.textContent;
+          submitBtn.textContent = "Creating Profile...";
+          submitBtn.disabled = true;
+
+          // Get form data
+          const formData = new FormData(this);
+          const userData = Object.fromEntries(formData.entries());
+
+          // Client-side validation
+          if (
+            !userData.firstName ||
+            !userData.lastName ||
+            !userData.email ||
+            !userData.password ||
+            !userData.userType
+          ) {
+            showMessage("Please fill in all required fields", "error");
+            resetButton(submitBtn, originalBtnText);
+            return;
+          }
+
+          if (userData.password.length < 6) {
+            showMessage("Password must be at least 6 characters long", "error");
+            resetButton(submitBtn, originalBtnText);
+            return;
+          }
+
+          // Convert skills to array if it's a string
+          if (userData.skills && typeof userData.skills === "string") {
+            userData.skills = userData.skills
+              .split(",")
+              .map((skill) => skill.trim());
+          }
+
+          // Convert numeric fields
+          if (userData.hourlyRate) {
+            userData.hourlyRate = parseFloat(userData.hourlyRate);
+          }
+          if (userData.fundingNeeded) {
+            userData.fundingNeeded = parseFloat(userData.fundingNeeded);
+          }
+
+          try {
+            console.log("Sending registration data:", userData);
+
+            const response = await fetch(
+              "http://localhost:5000/api/v1/auth/register",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Accept: "application/json",
+                },
+                body: JSON.stringify(userData),
+              }
+            );
+
+            console.log("Response status:", response.status);
+
+            const data = await response.json();
+            console.log("Response data:", data);
+
+            if (response.ok && data.success) {
+              // Success
+              showMessage(
+                "Registration successful! Redirecting to dashboard...",
+                "success"
+              );
+
+              // Store user data
+              localStorage.setItem("token", data.token);
+              localStorage.setItem("user", JSON.stringify(data.data));
+
+              // Redirect after a short delay
+              setTimeout(() => {
+                window.location.href = "dashboard.html";
+              }, 2000);
+            } else {
+              // Server returned an error
+              const errorMessage =
+                data.message || "Registration failed. Please try again.";
+              showMessage(errorMessage, "error");
+              resetButton(submitBtn, originalBtnText);
+            }
+          } catch (error) {
+            console.error("Network error:", error);
+
+            // Check if it's a network error or server error
+            if (error.name === "TypeError" && error.message.includes("fetch")) {
+              showMessage(
+                "Unable to connect to server. Please check your internet connection and try again.",
+                "error"
+              );
+            } else {
+              showMessage(
+                "An unexpected error occurred. Please try again.",
+                "error"
+              );
+            }
+
+            resetButton(submitBtn, originalBtnText);
+          }
+        });
+
+      // Helper function to show messages
+      function showMessage(message, type) {
+        // Remove any existing message
+        const existingMessage = document.querySelector(".message-alert");
+        if (existingMessage) {
+          existingMessage.remove();
+        }
+
+        // Create new message element
+        const messageDiv = document.createElement("div");
+        messageDiv.className = `message-alert ${type}`;
+        messageDiv.textContent = message;
+
+        // Style the message
+        messageDiv.style.cssText = `
+        padding: 12px 16px;
+        margin: 16px 0;
+        border-radius: 8px;
+        font-weight: 500;
+        text-align: center;
+        position: relative;
+        animation: slideIn 0.3s ease-out;
+        ${
+          type === "success"
+            ? "background-color: #d1fae5; color: #065f46; border: 1px solid #a7f3d0;"
+            : "background-color: #fee2e2; color: #991b1b; border: 1px solid #fca5a5;"
+        }
+    `;
+
+        // Insert message after the form
+        const form = document.getElementById("userForm");
+        form.parentNode.insertBefore(messageDiv, form.nextSibling);
+
+        // Auto-remove error messages after 5 seconds
+        if (type === "error") {
+          setTimeout(() => {
+            if (messageDiv.parentNode) {
+              messageDiv.remove();
+            }
+          }, 5000);
+        }
       }
 
-      form.addEventListener("submit", async (e) => {
-        e.preventDefault();
+      // Helper function to reset button state
+      function resetButton(button, originalText) {
+        button.textContent = originalText;
+        button.disabled = false;
+      }
 
-        const email = document.getElementById("email").value;
-        const password = document.getElementById("password").value;
+      // Add CSS animation
+      const style = document.createElement("style");
+      style.textContent = `
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .message-alert {
+        transition: all 0.3s ease;
+    }
+    
+    button[type="submit"]:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+`;
+      document.head.appendChild(style);
 
-        try {
-          const res = await fetch("http://localhost:5000/api/auth/signin", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, password }),
-          });
-
-          const data = await res.json();
-
-          if (res.ok) {
-            localStorage.setItem("token", data.token);
-            showMessage("Login successful! Redirecting...", "success");
-
-            // Redirect after short delay
-            setTimeout(() => {
-              window.location.href = "dashboard.html";
-            }, 1500);
-          } else {
-            showMessage(data.message || "Login failed. Try again.", "error");
+      // Clear messages when user starts typing
+      document.addEventListener("input", function (e) {
+        if (e.target.closest("#userForm")) {
+          const existingMessage = document.querySelector(
+            ".message-alert.error"
+          );
+          if (existingMessage) {
+            existingMessage.remove();
           }
-        } catch (err) {
-          console.error(err);
-          showMessage("Server error. Please try again later.", "error");
         }
       });
+
+      // Dynamic form sections based on user type
+      document
+        .getElementById("userType")
+        .addEventListener("change", function () {
+          const userType = this.value;
+          const sections = document.querySelectorAll(".dynamic-section");
+
+          // Hide all dynamic sections
+          sections.forEach((section) => {
+            section.style.display = "none";
+          });
+
+          // Show relevant section
+          if (userType) {
+            const targetSection = document.getElementById(
+              userType.replace("-", "") + "Section"
+            );
+            if (targetSection) {
+              targetSection.style.display = "block";
+            }
+          }
+        });
+
+      // Profile image preview
+      document
+        .getElementById("profileImage")
+        .addEventListener("change", function (e) {
+          const file = e.target.files[0];
+          const preview = document.getElementById("profilePreview");
+
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+              preview.innerHTML = `<img src="${e.target.result}" alt="Profile Preview" style="max-width: 100px; max-height: 100px; border-radius: 50%; object-fit: cover;">`;
+            };
+            reader.readAsDataURL(file);
+          } else {
+            preview.innerHTML = "";
+          }
+        });
+
+      // Portfolio files preview (for skilled workers)
+      document
+        .getElementById("portfolio")
+        ?.addEventListener("change", function (e) {
+          const files = Array.from(e.target.files);
+          const preview = document.getElementById("portfolioPreview");
+
+          if (files.length > 0) {
+            preview.innerHTML = `
+            <div style="margin-top: 10px;">
+                <strong>Selected files:</strong>
+                <ul style="margin: 5px 0; padding-left: 20px;">
+                    ${files.map((file) => `<li>${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)</li>`).join("")}
+                </ul>
+            </div>
+        `;
+          } else {
+            preview.innerHTML = "";
+          }
+        });
+
+      // Form validation feedback
+      document
+        .querySelectorAll("input[required], select[required]")
+        .forEach((input) => {
+          input.addEventListener("blur", function () {
+            if (!this.value.trim()) {
+              this.style.borderColor = "#ef4444";
+            } else {
+              this.style.borderColor = "#d1d5db";
+            }
+          });
+
+          input.addEventListener("input", function () {
+            if (this.value.trim()) {
+              this.style.borderColor = "#10b981";
+            }
+          });
+        });
+
+      console.log("Registration form script loaded successfully");
     </script>
   </body>
 </html>
