@@ -3,27 +3,24 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>User Registration Form</title>
+    <title>Dashboard</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
+    <!-- Header with Logo -->
     <header class="header">
       <div class="header-container">
         <a href="./index.html" class="logo-link">
-          <img
-            src="./images/BlackLogo.svg"
-            alt="MindMarket Logo"
-            class="logo"
-          />
+          <img src="./images/MMlogo1.svg" alt="MindMarket Logo" class="logo" />
         </a>
       </div>
     </header>
 
     <div class="container">
-      <!-- Registration Form -->
-      <div id="registrationForm" class="form-container">
+      <!-- Registration Form (Hidden by default) -->
+      <div id="registrationForm" class="form-container" style="display: none">
         <h1>Create Your Profile</h1>
-
+        <!-- ... (Your registration form content goes here, if you want to show it for editing) ... -->
         <form id="userForm">
           <!-- User Type Selection -->
           <div class="form-group">
@@ -68,6 +65,11 @@
               <input type="email" id="email" name="email" required />
             </div>
 
+            <div class="form-group">
+              <label for="password">Password:</label>
+              <input type="password" id="password" name="password" required />
+            </div>
+
             <div class="form-row">
               <div class="form-group">
                 <label for="phone">Phone Number:</label>
@@ -87,6 +89,211 @@
                 rows="4"
                 placeholder="Tell us about yourself..."
               ></textarea>
+            </div>
+
+            <!-- Consultation Availability Section -->
+            <div class="section">
+              <h3>📅 Consultation Availability</h3>
+
+              <div class="form-group">
+                <label for="timezone">Timezone:</label>
+                <select id="timezone" name="timezone">
+                  <option value="">Select your timezone</option>
+                  <option value="UTC-12:00">
+                    (UTC-12:00) International Date Line West
+                  </option>
+                  <option value="UTC-11:00">
+                    (UTC-11:00) Coordinated Universal Time-11
+                  </option>
+                  <option value="UTC-10:00">(UTC-10:00) Hawaii</option>
+                  <option value="UTC-09:00">(UTC-09:00) Alaska</option>
+                  <option value="UTC-08:00">
+                    (UTC-08:00) Pacific Time (US & Canada)
+                  </option>
+                  <option value="UTC-07:00">
+                    (UTC-07:00) Mountain Time (US & Canada)
+                  </option>
+                  <option value="UTC-06:00">
+                    (UTC-06:00) Central Time (US & Canada)
+                  </option>
+                  <option value="UTC-05:00">
+                    (UTC-05:00) Eastern Time (US & Canada)
+                  </option>
+                  <option value="UTC+01:00">
+                    (UTC+01:00) West Africa Time (Lagos, Nigeria)
+                  </option>
+                  <option value="UTC+02:00">
+                    (UTC+02:00) Central Africa Time
+                  </option>
+                  <option value="UTC+03:00">
+                    (UTC+03:00) East Africa Time
+                  </option>
+                  <option value="UTC+05:30">
+                    (UTC+05:30) India Standard Time
+                  </option>
+                  <option value="UTC+08:00">
+                    (UTC+08:00) China Standard Time
+                  </option>
+                  <option value="UTC+09:00">
+                    (UTC+09:00) Japan Standard Time
+                  </option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>📞 Preferred Consultation Days:</label>
+                <div class="checkbox-group">
+                  <label class="checkbox-label">
+                    <input
+                      type="checkbox"
+                      name="consultationDays"
+                      value="monday"
+                    />
+                    <span class="checkmark"></span> Monday
+                  </label>
+                  <label class="checkbox-label">
+                    <input
+                      type="checkbox"
+                      name="consultationDays"
+                      value="tuesday"
+                    />
+                    <span class="checkmark"></span> Tuesday
+                  </label>
+                  <label class="checkbox-label">
+                    <input
+                      type="checkbox"
+                      name="consultationDays"
+                      value="wednesday"
+                    />
+                    <span class="checkmark"></span> Wednesday
+                  </label>
+                  <label class="checkbox-label">
+                    <input
+                      type="checkbox"
+                      name="consultationDays"
+                      value="thursday"
+                    />
+                    <span class="checkmark"></span> Thursday
+                  </label>
+                  <label class="checkbox-label">
+                    <input
+                      type="checkbox"
+                      name="consultationDays"
+                      value="friday"
+                    />
+                    <span class="checkmark"></span> Friday
+                  </label>
+                  <label class="checkbox-label">
+                    <input
+                      type="checkbox"
+                      name="consultationDays"
+                      value="saturday"
+                    />
+                    <span class="checkmark"></span> Saturday
+                  </label>
+                  <label class="checkbox-label">
+                    <input
+                      type="checkbox"
+                      name="consultationDays"
+                      value="sunday"
+                    />
+                    <span class="checkmark"></span> Sunday
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="consultationStartTime">⏰ Available From:</label>
+                  <input
+                    type="time"
+                    id="consultationStartTime"
+                    name="consultationStartTime"
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="consultationEndTime">⏰ Available Until:</label>
+                  <input
+                    type="time"
+                    id="consultationEndTime"
+                    name="consultationEndTime"
+                  />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>💬 Preferred Communication Methods:</label>
+                <div class="checkbox-group">
+                  <label class="checkbox-label">
+                    <input
+                      type="checkbox"
+                      name="communicationMethods"
+                      value="video-call"
+                    />
+                    <span class="checkmark"></span> 📹 Video Call
+                  </label>
+                  <label class="checkbox-label">
+                    <input
+                      type="checkbox"
+                      name="communicationMethods"
+                      value="phone-call"
+                    />
+                    <span class="checkmark"></span> 📞 Phone Call
+                  </label>
+                  <label class="checkbox-label">
+                    <input
+                      type="checkbox"
+                      name="communicationMethods"
+                      value="email"
+                    />
+                    <span class="checkmark"></span> 📧 Email
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="consultationRate"
+                  >💰 Consultation Rate (per hour):</label
+                >
+                <select id="consultationRate" name="consultationRate">
+                  <option value="">Select rate (optional)</option>
+                  <option value="free">Free Consultation</option>
+                  <option value="25">USD 25/hour</option>
+                  <option value="50">USD 50/hour</option>
+                  <option value="75">USD 75/hour</option>
+                  <option value="100">USD 100/hour</option>
+                  <option value="150">USD 150/hour</option>
+                  <option value="200">USD 200/hour</option>
+                  <option value="custom">Custom Rate</option>
+                </select>
+              </div>
+
+              <div
+                class="form-group"
+                id="customRateGroup"
+                style="display: none"
+              >
+                <label for="customConsultationRate"
+                  >Custom Rate (USD per hour):</label
+                >
+                <input
+                  type="number"
+                  id="customConsultationRate"
+                  name="customConsultationRate"
+                  min="1"
+                  placeholder="Enter your hourly rate"
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="consultationNotes">📝 Additional Notes:</label>
+                <textarea
+                  id="consultationNotes"
+                  name="consultationNotes"
+                  rows="3"
+                  placeholder="Any specific requirements or notes for consultations..."
+                ></textarea>
+              </div>
             </div>
           </div>
 
@@ -277,7 +484,7 @@
               </select>
             </div>
             <div class="form-group">
-              <label for="hourlyRate">Hourly Rate (NGN):</label>
+              <label for="hourlyRate">Hourly Rate (USD):</label>
               <input
                 type="number"
                 id="hourlyRate"
@@ -390,7 +597,14 @@
               <p id="dashLocation"></p>
             </div>
           </div>
-          <button id="editProfile" class="edit-btn">Edit Profile</button>
+          <div class="header-actions">
+            <button id="editProfile" class="edit-btn">Edit Profile</button>
+            <button id="scheduleConsultation" class="schedule-btn">
+              Schedule Consultation
+            </button>
+            <button id="logoutBtn" class="logout-btn">Logout</button>
+            <!-- NEW: Logout Button -->
+          </div>
         </div>
 
         <div class="dashboard-content">
@@ -401,7 +615,69 @@
             <p><strong>Bio:</strong> <span id="dashBio"></span></p>
           </div>
 
+          <!-- Consultation Availability Display -->
+          <div class="info-card" id="consultationCard">
+            <h2>📅 Consultation Availability</h2>
+            <p><strong>Timezone:</strong> <span id="dashTimezone"></span></p>
+            <p>
+              <strong>Available Days:</strong>
+              <span id="dashConsultationDays"></span>
+            </p>
+            <p>
+              <strong>Available Hours:</strong>
+              <span id="dashConsultationHours"></span>
+            </p>
+            <p>
+              <strong>Communication Methods:</strong>
+              <span id="dashCommunicationMethods"></span>
+            </p>
+            <p>
+              <strong>Rate:</strong> <span id="dashConsultationRate"></span>
+            </p>
+            <div id="dashConsultationNotes"></div>
+          </div>
+
           <div id="dashboardDynamicContent"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Consultation Scheduling Modal -->
+    <div id="consultationModal" class="modal" style="display: none">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>📅 Schedule Consultation</h3>
+          <span class="close" id="closeConsultationModal">&times;</span>
+        </div>
+        <div class="consultation-form">
+          <div class="form-group">
+            <label for="consultationDate">Preferred Date:</label>
+            <input type="date" id="consultationDate" />
+          </div>
+          <div class="form-group">
+            <label for="consultationTime">Preferred Time:</label>
+            <input type="time" id="consultationTime" />
+          </div>
+          <div class="form-group">
+            <label for="consultationDuration">Duration:</label>
+            <select id="consultationDuration">
+              <option value="30">30 minutes</option>
+              <option value="60">1 hour</option>
+              <option value="90">1.5 hours</option>
+              <option value="120">2 hours</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="consultationTopic">Topic/Agenda:</label>
+            <textarea
+              id="consultationTopic"
+              rows="3"
+              placeholder="What would you like to discuss?"
+            ></textarea>
+          </div>
+          <button id="requestConsultation" class="schedule-btn">
+            Request Consultation
+          </button>
         </div>
       </div>
     </div>
