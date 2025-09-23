@@ -78,6 +78,13 @@
           const formData = new FormData(this);
           const userData = Object.fromEntries(formData.entries());
 
+          // Map form fields to backend expected fields
+          const backendData = {
+            name: `${userData.firstName} ${userData.lastName}`.trim(),
+            email: userData.email,
+            password: userData.password,
+          };
+
           // Client-side validation
           if (
             !userData.firstName ||
@@ -113,17 +120,17 @@
           }
 
           try {
-            console.log("Sending registration data:", userData);
+            console.log("Sending registration data:", backendData);
 
             const response = await fetch(
-              "http://localhost:5000/api/v1/auth/register",
+              "https://mind-market-api.onrender.com/api/auth/signup",
               {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",
                   Accept: "application/json",
                 },
-                body: JSON.stringify(userData),
+                body: JSON.stringify(backendData),
               }
             );
 
@@ -132,7 +139,7 @@
             const data = await response.json();
             console.log("Response data:", data);
 
-            if (response.ok && data.success) {
+            if (response.ok && data.token) {
               // Success
               showMessage(
                 "Registration successful! Redirecting to dashboard...",
@@ -141,7 +148,20 @@
 
               // Store user data
               localStorage.setItem("token", data.token);
-              localStorage.setItem("user", JSON.stringify(data.data));
+              localStorage.setItem("user", JSON.stringify(data.user));
+
+              // Store additional form data locally if needed
+              const additionalData = {
+                userType: userData.userType,
+                skills: userData.skills,
+                hourlyRate: userData.hourlyRate,
+                fundingNeeded: userData.fundingNeeded,
+                // Add other fields as needed
+              };
+              localStorage.setItem(
+                "userProfile",
+                JSON.stringify(additionalData)
+              );
 
               // Redirect after a short delay
               setTimeout(() => {
@@ -286,7 +306,7 @@
       // Profile image preview
       document
         .getElementById("profileImage")
-        .addEventListener("change", function (e) {
+        ?.addEventListener("change", function (e) {
           const file = e.target.files[0];
           const preview = document.getElementById("profilePreview");
 
