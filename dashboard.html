@@ -1,0 +1,687 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <!-- Header with Logo -->
+    <header class="header">
+      <div class="header-container">
+        <a href="./index.html" class="logo-link">
+          <img src="./images/MMlogo1.svg" alt="MindMarket Logo" class="logo" />
+        </a>
+      </div>
+    </header>
+
+    <div class="container">
+      <!-- Registration Form (Hidden by default) -->
+      <div id="registrationForm" class="form-container" style="display: none">
+        <h1>Create Your Profile</h1>
+        <!-- ... (Your registration form content goes here, if you want to show it for editing) ... -->
+        <form id="userForm">
+          <!-- User Type Selection -->
+          <div class="form-group">
+            <label for="userType">What is your role?</label>
+            <select id="userType" name="userType" required>
+              <option value="">Select your role</option>
+              <option value="investor">Investor</option>
+              <option value="hirer">Hirer of Skills</option>
+              <option value="skilled-worker">Skilled Worker</option>
+              <option value="idea-pitcher">Idea Pitcher</option>
+            </select>
+          </div>
+
+          <!-- Personal Information -->
+          <div class="section">
+            <h2>Personal Information</h2>
+
+            <div class="form-group">
+              <label for="profileImage">Profile Picture:</label>
+              <input
+                type="file"
+                id="profileImage"
+                name="profileImage"
+                accept="image/*"
+              />
+              <div id="profilePreview" class="image-preview"></div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="firstName">First Name:</label>
+                <input type="text" id="firstName" name="firstName" required />
+              </div>
+              <div class="form-group">
+                <label for="lastName">Last Name:</label>
+                <input type="text" id="lastName" name="lastName" required />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="email">Email:</label>
+              <input type="email" id="email" name="email" required />
+            </div>
+
+            <div class="form-group">
+              <label for="password">Password:</label>
+              <input type="password" id="password" name="password" required />
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="phone">Phone Number:</label>
+                <input type="tel" id="phone" name="phone" required />
+              </div>
+              <div class="form-group">
+                <label for="location">Location:</label>
+                <input type="text" id="location" name="location" required />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="bio">Bio:</label>
+              <textarea
+                id="bio"
+                name="bio"
+                rows="4"
+                placeholder="Tell us about yourself..."
+              ></textarea>
+            </div>
+
+            <!-- Consultation Availability Section -->
+            <div class="section">
+              <h3>📅 Consultation Availability</h3>
+
+              <div class="form-group">
+                <label for="timezone">Timezone:</label>
+                <select id="timezone" name="timezone">
+                  <option value="">Select your timezone</option>
+                  <option value="UTC-12:00">
+                    (UTC-12:00) International Date Line West
+                  </option>
+                  <option value="UTC-11:00">
+                    (UTC-11:00) Coordinated Universal Time-11
+                  </option>
+                  <option value="UTC-10:00">(UTC-10:00) Hawaii</option>
+                  <option value="UTC-09:00">(UTC-09:00) Alaska</option>
+                  <option value="UTC-08:00">
+                    (UTC-08:00) Pacific Time (US & Canada)
+                  </option>
+                  <option value="UTC-07:00">
+                    (UTC-07:00) Mountain Time (US & Canada)
+                  </option>
+                  <option value="UTC-06:00">
+                    (UTC-06:00) Central Time (US & Canada)
+                  </option>
+                  <option value="UTC-05:00">
+                    (UTC-05:00) Eastern Time (US & Canada)
+                  </option>
+                  <option value="UTC+01:00">
+                    (UTC+01:00) West Africa Time (Lagos, Nigeria)
+                  </option>
+                  <option value="UTC+02:00">
+                    (UTC+02:00) Central Africa Time
+                  </option>
+                  <option value="UTC+03:00">
+                    (UTC+03:00) East Africa Time
+                  </option>
+                  <option value="UTC+05:30">
+                    (UTC+05:30) India Standard Time
+                  </option>
+                  <option value="UTC+08:00">
+                    (UTC+08:00) China Standard Time
+                  </option>
+                  <option value="UTC+09:00">
+                    (UTC+09:00) Japan Standard Time
+                  </option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>📞 Preferred Consultation Days:</label>
+                <div class="checkbox-group">
+                  <label class="checkbox-label">
+                    <input
+                      type="checkbox"
+                      name="consultationDays"
+                      value="monday"
+                    />
+                    <span class="checkmark"></span> Monday
+                  </label>
+                  <label class="checkbox-label">
+                    <input
+                      type="checkbox"
+                      name="consultationDays"
+                      value="tuesday"
+                    />
+                    <span class="checkmark"></span> Tuesday
+                  </label>
+                  <label class="checkbox-label">
+                    <input
+                      type="checkbox"
+                      name="consultationDays"
+                      value="wednesday"
+                    />
+                    <span class="checkmark"></span> Wednesday
+                  </label>
+                  <label class="checkbox-label">
+                    <input
+                      type="checkbox"
+                      name="consultationDays"
+                      value="thursday"
+                    />
+                    <span class="checkmark"></span> Thursday
+                  </label>
+                  <label class="checkbox-label">
+                    <input
+                      type="checkbox"
+                      name="consultationDays"
+                      value="friday"
+                    />
+                    <span class="checkmark"></span> Friday
+                  </label>
+                  <label class="checkbox-label">
+                    <input
+                      type="checkbox"
+                      name="consultationDays"
+                      value="saturday"
+                    />
+                    <span class="checkmark"></span> Saturday
+                  </label>
+                  <label class="checkbox-label">
+                    <input
+                      type="checkbox"
+                      name="consultationDays"
+                      value="sunday"
+                    />
+                    <span class="checkmark"></span> Sunday
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="consultationStartTime">⏰ Available From:</label>
+                  <input
+                    type="time"
+                    id="consultationStartTime"
+                    name="consultationStartTime"
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="consultationEndTime">⏰ Available Until:</label>
+                  <input
+                    type="time"
+                    id="consultationEndTime"
+                    name="consultationEndTime"
+                  />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>💬 Preferred Communication Methods:</label>
+                <div class="checkbox-group">
+                  <label class="checkbox-label">
+                    <input
+                      type="checkbox"
+                      name="communicationMethods"
+                      value="video-call"
+                    />
+                    <span class="checkmark"></span> 📹 Video Call
+                  </label>
+                  <label class="checkbox-label">
+                    <input
+                      type="checkbox"
+                      name="communicationMethods"
+                      value="phone-call"
+                    />
+                    <span class="checkmark"></span> 📞 Phone Call
+                  </label>
+                  <label class="checkbox-label">
+                    <input
+                      type="checkbox"
+                      name="communicationMethods"
+                      value="email"
+                    />
+                    <span class="checkmark"></span> 📧 Email
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="consultationRate"
+                  >💰 Consultation Rate (per hour):</label
+                >
+                <select id="consultationRate" name="consultationRate">
+                  <option value="">Select rate (optional)</option>
+                  <option value="free">Free Consultation</option>
+                  <option value="25">USD 25/hour</option>
+                  <option value="50">USD 50/hour</option>
+                  <option value="75">USD 75/hour</option>
+                  <option value="100">USD 100/hour</option>
+                  <option value="150">USD 150/hour</option>
+                  <option value="200">USD 200/hour</option>
+                  <option value="custom">Custom Rate</option>
+                </select>
+              </div>
+
+              <div
+                class="form-group"
+                id="customRateGroup"
+                style="display: none"
+              >
+                <label for="customConsultationRate"
+                  >Custom Rate (USD per hour):</label
+                >
+                <input
+                  type="number"
+                  id="customConsultationRate"
+                  name="customConsultationRate"
+                  min="1"
+                  placeholder="Enter your hourly rate"
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="consultationNotes">📝 Additional Notes:</label>
+                <textarea
+                  id="consultationNotes"
+                  name="consultationNotes"
+                  rows="3"
+                  placeholder="Any specific requirements or notes for consultations..."
+                ></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dynamic Sections Based on User Type -->
+
+          <!-- Investor Section -->
+          <div
+            id="investorSection"
+            class="section dynamic-section"
+            style="display: none"
+          >
+            <h2>Investment Information</h2>
+            <div class="form-group">
+              <label for="investmentRange">Investment Range (USD):</label>
+              <select id="investmentRange" name="investmentRange">
+                <option value="">Select range</option>
+                <option value="1000-10000">USD 1,000 - USD 10,000</option>
+                <option value="10000-50000">USD 10,000 - USD 50,000</option>
+                <option value="50000-100000">USD 50,000 - USD 100,000</option>
+                <option value="100000+">USD 100,000+</option>
+              </select>
+            </div>
+
+            <!-- Investment Interests Dropdown -->
+            <div class="form-group">
+              <label for="investmentInterests">Investment Interests:</label>
+              <select id="investmentInterests" name="investmentInterests">
+                <option value="">Select your investment interest</option>
+                <option value="agriculture">Agriculture & Food</option>
+                <option value="education">Education & E-learning</option>
+                <option value="fintech">Financial Technology (FinTech)</option>
+                <option value="healthcare">Healthcare & Medical</option>
+                <option value="technology">Technology & Software</option>
+                <option value="renewable-energy">Renewable Energy</option>
+                <option value="real-estate">Real Estate</option>
+                <option value="retail-ecommerce">Retail & E-commerce</option>
+                <option value="manufacturing">
+                  Manufacturing & Industrial
+                </option>
+                <option value="transportation">
+                  Transportation & Logistics
+                </option>
+                <option value="entertainment">Entertainment & Media</option>
+                <option value="tourism-hospitality">
+                  Tourism & Hospitality
+                </option>
+                <option value="blockchain-crypto">
+                  Blockchain & Cryptocurrency
+                </option>
+                <option value="artificial-intelligence">
+                  Artificial Intelligence
+                </option>
+                <option value="biotechnology">Biotechnology</option>
+                <option value="clean-tech">Clean Technology</option>
+                <option value="social-impact">
+                  Social Impact & Non-profit
+                </option>
+                <option value="sports-fitness">Sports & Fitness</option>
+                <option value="fashion-beauty">Fashion & Beauty</option>
+                <option value="others">Others (Please specify)</option>
+              </select>
+            </div>
+
+            <!-- Custom Investment Interest Input (Hidden by default) -->
+            <div
+              class="form-group"
+              id="customInterestGroup"
+              style="display: none"
+            >
+              <label for="customInvestmentInterest"
+                >Please specify your investment interest:</label
+              >
+              <input
+                type="text"
+                id="customInvestmentInterest"
+                name="customInvestmentInterest"
+                placeholder="Enter your specific investment interest..."
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="investmentDescription"
+                >Investment Focus Description:</label
+              >
+              <textarea
+                id="investmentDescription"
+                name="investmentDescription"
+                rows="3"
+                placeholder="Describe what specific aspects of this sector interest you..."
+              ></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="experience">Investment Experience:</label>
+              <textarea
+                id="experience"
+                name="experience"
+                rows="3"
+                placeholder="Describe your investment experience..."
+              ></textarea>
+            </div>
+
+            <!-- Investment Preferences -->
+            <div class="form-group">
+              <label for="investmentStage">Preferred Investment Stage:</label>
+              <select id="investmentStage" name="investmentStage">
+                <option value="">Select stage</option>
+                <option value="seed">Seed Stage</option>
+                <option value="early-stage">Early Stage</option>
+                <option value="growth-stage">Growth Stage</option>
+                <option value="late-stage">Late Stage</option>
+                <option value="any-stage">Any Stage</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="riskTolerance">Risk Tolerance:</label>
+              <select id="riskTolerance" name="riskTolerance">
+                <option value="">Select risk tolerance</option>
+                <option value="conservative">Conservative</option>
+                <option value="moderate">Moderate</option>
+                <option value="aggressive">Aggressive</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Hirer Section -->
+          <div
+            id="hirerSection"
+            class="section dynamic-section"
+            style="display: none"
+          >
+            <h2>Hiring Information</h2>
+            <div class="form-group">
+              <label for="companyName">Company Name:</label>
+              <input type="text" id="companyName" name="companyName" />
+            </div>
+            <div class="form-group">
+              <label for="industry">Industry:</label>
+              <input type="text" id="industry" name="industry" />
+            </div>
+            <div class="form-group">
+              <label for="skillsNeeded">Skills Needed:</label>
+              <textarea
+                id="skillsNeeded"
+                name="skillsNeeded"
+                rows="3"
+                placeholder="What skills are you looking to hire?"
+              ></textarea>
+            </div>
+            <div class="form-group">
+              <label for="budget">Budget Range:</label>
+              <select id="budget" name="budget">
+                <option value="">Select budget range</option>
+                <option value="500-2000">USD 500 - USD 2,000</option>
+                <option value="2000-5000">USD 2,000 - USD 5,000</option>
+                <option value="5000-10000">USD 5,000 - USD 10,000</option>
+                <option value="10000+">USD 10,000+</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Skilled Worker Section -->
+          <div
+            id="skilledWorkerSection"
+            class="section dynamic-section"
+            style="display: none"
+          >
+            <h2>Skills & Portfolio</h2>
+            <div class="form-group">
+              <label for="skills">Skills:</label>
+              <input
+                type="text"
+                id="skills"
+                name="skills"
+                placeholder="e.g., Web Development, Graphic Design, Marketing"
+              />
+            </div>
+            <div class="form-group">
+              <label for="experience">Years of Experience:</label>
+              <select id="yearsExperience" name="yearsExperience">
+                <option value="">Select experience</option>
+                <option value="0-1">0-1 years</option>
+                <option value="1-3">1-3 years</option>
+                <option value="3-5">3-5 years</option>
+                <option value="5-10">5-10 years</option>
+                <option value="10+">10+ years</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="hourlyRate">Hourly Rate (USD):</label>
+              <input
+                type="number"
+                id="hourlyRate"
+                name="hourlyRate"
+                min="1"
+                placeholder="25"
+              />
+            </div>
+            <div class="form-group">
+              <label for="portfolio">Portfolio</label>
+              <input
+                type="file"
+                id="portfolio"
+                name="portfolio"
+                multiple
+                accept=".pdf,.doc,.docx,.ppt,.pptx,.jpg,.jpeg,.png,.gif,.bmp,./*"
+              />
+              <div id="portfolioPreview" class="image-preview-grid"></div>
+            </div>
+            <div class="form-group">
+              <label for="workDescription">Work Description:</label>
+              <textarea
+                id="workDescription"
+                name="workDescription"
+                rows="4"
+                placeholder="Describe your work and expertise..."
+              ></textarea>
+            </div>
+          </div>
+
+          <!-- Idea Pitcher Section -->
+          <div
+            id="ideaPitcherSection"
+            class="section dynamic-section"
+            style="display: none"
+          >
+            <h2>Your Idea</h2>
+            <div class="form-group">
+              <label for="ideaTitle">Idea Title:</label>
+              <input type="text" id="ideaTitle" name="ideaTitle" />
+            </div>
+            <div class="form-group">
+              <label for="ideaDescription">Idea Description:</label>
+              <textarea
+                id="ideaDescription"
+                name="ideaDescription"
+                rows="5"
+                placeholder="Describe your idea in detail..."
+              ></textarea>
+            </div>
+            <div class="form-group">
+              <label for="targetMarket">Target Market:</label>
+              <input
+                type="text"
+                id="targetMarket"
+                name="targetMarket"
+                placeholder="Who is your target audience?"
+              />
+            </div>
+            <div class="form-group">
+              <label for="fundingNeeded">Funding Needed (USD):</label>
+              <input
+                type="number"
+                id="fundingNeeded"
+                name="fundingNeeded"
+                min="1"
+                placeholder="50000"
+              />
+            </div>
+            <div class="form-group">
+              <label for="ideaDocuments">Supporting Documents:</label>
+              <input
+                type="file"
+                id="ideaDocuments"
+                name="ideaDocuments"
+                multiple
+                accept=".pdf,.doc,.docx,.ppt,.pptx"
+              />
+              <div id="documentsPreview" class="file-preview"></div>
+            </div>
+            <div class="form-group">
+              <label for="ideaVideo">Pitch Video:</label>
+              <input
+                type="file"
+                id="ideaVideo"
+                name="ideaVideo"
+                accept="video/*"
+              />
+              <div id="videoPreview" class="video-preview"></div>
+            </div>
+          </div>
+
+          <button type="submit" class="submit-btn">Create Profile</button>
+        </form>
+      </div>
+
+      <!-- Dashboard -->
+      <div id="dashboard" class="dashboard-container" style="display: none">
+        <div class="dashboard-header">
+          <div class="profile-section">
+            <img
+              id="dashProfileImage"
+              src=""
+              alt="Profile"
+              class="profile-img"
+            />
+            <div class="profile-info">
+              <h1 id="dashName"></h1>
+              <p id="dashUserType" class="user-type"></p>
+              <p id="dashLocation"></p>
+            </div>
+          </div>
+          <div class="header-actions">
+            <button id="editProfile" class="edit-btn">Edit Profile</button>
+            <button id="scheduleConsultation" class="schedule-btn">
+              Schedule Consultation
+            </button>
+            <button id="logoutBtn" class="logout-btn">Logout</button>
+            <!-- NEW: Logout Button -->
+          </div>
+        </div>
+
+        <div class="dashboard-content">
+          <div class="info-card">
+            <h2>Contact Information</h2>
+            <p><strong>Email:</strong> <span id="dashEmail"></span></p>
+            <p><strong>Phone:</strong> <span id="dashPhone"></span></p>
+            <p><strong>Bio:</strong> <span id="dashBio"></span></p>
+          </div>
+
+          <!-- Consultation Availability Display -->
+          <div class="info-card" id="consultationCard">
+            <h2>📅 Consultation Availability</h2>
+            <p><strong>Timezone:</strong> <span id="dashTimezone"></span></p>
+            <p>
+              <strong>Available Days:</strong>
+              <span id="dashConsultationDays"></span>
+            </p>
+            <p>
+              <strong>Available Hours:</strong>
+              <span id="dashConsultationHours"></span>
+            </p>
+            <p>
+              <strong>Communication Methods:</strong>
+              <span id="dashCommunicationMethods"></span>
+            </p>
+            <p>
+              <strong>Rate:</strong> <span id="dashConsultationRate"></span>
+            </p>
+            <div id="dashConsultationNotes"></div>
+          </div>
+
+          <div id="dashboardDynamicContent"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Consultation Scheduling Modal -->
+    <div id="consultationModal" class="modal" style="display: none">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>📅 Schedule Consultation</h3>
+          <span class="close" id="closeConsultationModal">&times;</span>
+        </div>
+        <div class="consultation-form">
+          <div class="form-group">
+            <label for="consultationDate">Preferred Date:</label>
+            <input type="date" id="consultationDate" />
+          </div>
+          <div class="form-group">
+            <label for="consultationTime">Preferred Time:</label>
+            <input type="time" id="consultationTime" />
+          </div>
+          <div class="form-group">
+            <label for="consultationDuration">Duration:</label>
+            <select id="consultationDuration">
+              <option value="30">30 minutes</option>
+              <option value="60">1 hour</option>
+              <option value="90">1.5 hours</option>
+              <option value="120">2 hours</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="consultationTopic">Topic/Agenda:</label>
+            <textarea
+              id="consultationTopic"
+              rows="3"
+              placeholder="What would you like to discuss?"
+            ></textarea>
+          </div>
+          <button id="requestConsultation" class="schedule-btn">
+            Request Consultation
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
