@@ -79,9 +79,9 @@
             console.log("Missing fields:", {
               name: !userData.name,
               email: !userData.email,
-              password: !userData.password
+              password: !userData.password,
             });
-            
+
             showMessage(
               "⚠️ All fields are required. Please fill in your name, email, and password.",
               "error"
@@ -91,7 +91,10 @@
           }
 
           if (userData.password.length < 6) {
-            showMessage("⚠️ Password must be at least 6 characters long", "error");
+            showMessage(
+              "⚠️ Password must be at least 6 characters long",
+              "error"
+            );
             resetButton(submitBtn, originalBtnText);
             return;
           }
@@ -126,7 +129,7 @@
 
             if (response.ok && data.token) {
               showMessage(
-                "🎉 Registration successful! Welcome to MindMarket. Redirecting to your dashboard...",
+                "Registration successful! Welcome to MindMarket. Redirecting to your dashboard...",
                 "success"
               );
 
@@ -151,7 +154,9 @@
               // Show which fields are missing
               if (data.missing) {
                 console.log("Backend says missing fields:", data.missing);
-                const missingFields = Object.keys(data.missing).filter(key => data.missing[key]);
+                const missingFields = Object.keys(data.missing).filter(
+                  (key) => data.missing[key]
+                );
                 errorMessage += ` Missing: ${missingFields.join(", ")}`;
               }
 
@@ -191,7 +196,7 @@
         messageDiv.innerHTML = `
             <div style="display: flex; align-items: center; gap: 8px;">
               <span>${type === "success" ? "✅" : "⚠️"}</span>
-              <span>${message.replace(/^[⚠️❌🎉✅]\s*/, '')}</span>
+              <span>${message.replace(/^[⚠️❌🎉✅]\s*/, "")}</span>
             </div>
           `;
 
