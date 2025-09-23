@@ -6,7 +6,7 @@
 
 body {
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #e8e8e8 0%, #e4e4e4 100%);
   min-height: 100vh;
   color: #333;
 }
@@ -199,6 +199,14 @@ body {
   font-family: inherit;
 }
 
+.password-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
@@ -289,7 +297,7 @@ body {
 }
 
 .profile-card {
-  background: linear-gradient(45deg, #667eea, #764ba2);
+  background: linear-gradient(45deg, #667eea, #011985);
   color: white;
   padding: 2rem;
   border-radius: 15px;
@@ -553,6 +561,48 @@ html {
   opacity: 1;
 }
 
+/* Explore Buttons */
+.explore-section {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.explore-btn {
+  background: linear-gradient(45deg, #28a745, #20c997);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 25px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.5rem;
+}
+
+.explore-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(40, 167, 69, 0.4);
+  text-decoration: none;
+  color: white;
+}
+
+.explore-btn i {
+  font-size: 1.2rem;
+}
+
+@media (max-width: 768px) {
+  .explore-btn {
+    width: 100%;
+    max-width: 300px;
+    justify-content: center;
+  }
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .container {
@@ -805,48 +855,6 @@ html {
   .logout-cancel-btn,
   .logout-confirm-btn {
     width: 100%;
-    justify-content: center;
-  }
-}
-
-/* Explore Buttons */
-.explore-section {
-  margin-top: 2rem;
-  text-align: center;
-}
-
-.explore-btn {
-  background: linear-gradient(45deg, #28a745, #20c997);
-  color: white;
-  border: none;
-  padding: 1rem 2rem;
-  border-radius: 25px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin: 0.5rem;
-}
-
-.explore-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(40, 167, 69, 0.4);
-  text-decoration: none;
-  color: white;
-}
-
-.explore-btn i {
-  font-size: 1.2rem;
-}
-
-@media (max-width: 768px) {
-  .explore-btn {
-    width: 100%;
-    max-width: 300px;
     justify-content: center;
   }
 }

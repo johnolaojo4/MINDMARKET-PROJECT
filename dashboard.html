@@ -1,345 +1,581 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MindMarket - Dashboard</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
     <div class="header">
-        <a href="#" class="logo" onclick="goHome()">
-            <i class="fas fa-brain"></i>
-            MindMarket
-        </a>
-        <a href="#" class="logout-btn" onclick="logout()">
-            <i class="fas fa-sign-out-alt"></i>
-            Logout
-        </a>
+      <a href="index.html" class="logo" onclick="goHome()">
+        <img
+          src="images/BlackLogo.svg"
+          alt="MindMarket Logo"
+          style="height: 2.2rem; width: auto"
+        />
+      </a>
+
+      <a href="#" class="logout-btn" onclick="logout()">
+        <i class="fas fa-sign-out-alt"></i>
+        Logout
+      </a>
     </div>
 
     <div class="container">
-        <div class="dashboard">
-            <div class="profile-section">
-                <div class="profile-pic-container">
-                    <div class="profile-pic-placeholder" id="profilePicDisplay" onclick="document.getElementById('profilePicInput').click()">
-                        <i class="fas fa-camera" id="profileIcon"></i>
-                        <span id="profileInitials" class="hidden">+</span>
-                    </div>
-                    <input type="file" id="profilePicInput" accept="image/*" style="display: none;" onchange="handleProfilePicUpload(event)">
-                </div>
-                <h2 id="welcomeMessage">Welcome! Please complete your profile</h2>
+      <div class="dashboard">
+        <div class="profile-section">
+          <div class="profile-pic-container">
+            <div
+              class="profile-pic-placeholder"
+              id="profilePicDisplay"
+              onclick="document.getElementById('profilePicInput').click()"
+            >
+              <i class="fas fa-camera" id="profileIcon"></i>
+              <span id="profileInitials" class="hidden">+</span>
             </div>
-
-            <!-- User Type Selection -->
-            <div id="userTypeSelection">
-                <div class="user-type-selector">
-                    <button class="user-type-btn" onclick="selectUserType('investor')">
-                        <i class="fas fa-chart-line"></i>
-                        Investor
-                    </button>
-                    <button class="user-type-btn" onclick="selectUserType('idea-pitcher')">
-                        <i class="fas fa-lightbulb"></i>
-                        Idea Pitcher
-                    </button>
-                    <button class="user-type-btn" onclick="selectUserType('skilled-worker')">
-                        <i class="fas fa-tools"></i>
-                        Skilled Worker
-                    </button>
-                    <button class="user-type-btn" onclick="selectUserType('hirer')">
-                        <i class="fas fa-handshake"></i>
-                        Hirer
-                    </button>
-                </div>
-            </div>
-
-            <!-- Investor Form -->
-            <div id="investorForm" class="form-container">
-                <h3><i class="fas fa-chart-line"></i> Investor Profile</h3>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="investorName"><i class="fas fa-user"></i> Full Name</label>
-                        <input type="text" id="investorName" placeholder="Enter your full name">
-                    </div>
-                    <div class="form-group">
-                        <label for="investorEmail"><i class="fas fa-envelope"></i> Email</label>
-                        <input type="email" id="investorEmail" placeholder="Enter your email">
-                    </div>
-                    <div class="form-group">
-                        <label for="investorPhone"><i class="fas fa-phone"></i> Phone Number</label>
-                        <input type="tel" id="investorPhone" placeholder="Enter your phone number">
-                    </div>
-                    <div class="form-group">
-                        <label for="investorBudget"><i class="fas fa-dollar-sign"></i> Investment Budget (USD)</label>
-                        <input type="number" id="investorBudget" placeholder="Enter your budget">
-                    </div>
-                    <div class="form-group">
-                        <label for="investmentAreas"><i class="fas fa-tags"></i> Investment Interest Areas</label>
-                        <select id="investmentAreas" multiple>
-                            <option value="technology">Technology</option>
-                            <option value="healthcare">Healthcare</option>
-                            <option value="finance">Finance</option>
-                            <option value="education">Education</option>
-                            <option value="real-estate">Real Estate</option>
-                            <option value="retail">Retail</option>
-                            <option value="manufacturing">Manufacturing</option>
-                            <option value="agriculture">Agriculture</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="consultationPreference"><i class="fas fa-comments"></i> Consultation Preference</label>
-                        <select id="consultationPreference">
-                            <option value="in-person">In-Person</option>
-                            <option value="video-call">Video Call</option>
-                            <option value="phone-call">Phone Call</option>
-                            <option value="email">Email</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="investorLocation"><i class="fas fa-map-marker-alt"></i> Location</label>
-                        <input type="text" id="investorLocation" placeholder="Enter your location">
-                    </div>
-                    <div class="form-group">
-                        <label for="investorBio"><i class="fas fa-info-circle"></i> Bio/About</label>
-                        <textarea id="investorBio" placeholder="Tell us about yourself and your investment philosophy"></textarea>
-                    </div>
-                </div>
-                <button class="create-profile-btn" onclick="createProfile('investor')">
-                    <i class="fas fa-save"></i>
-                    Create Investor Profile
-                </button>
-            </div>
-
-            <!-- Idea Pitcher Form -->
-            <div id="ideaPitcherForm" class="form-container">
-                <h3><i class="fas fa-lightbulb"></i> Idea Pitcher Profile</h3>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="pitcherName"><i class="fas fa-user"></i> Full Name</label>
-                        <input type="text" id="pitcherName" placeholder="Enter your full name">
-                    </div>
-                    <div class="form-group">
-                        <label for="pitcherEmail"><i class="fas fa-envelope"></i> Email</label>
-                        <input type="email" id="pitcherEmail" placeholder="Enter your email">
-                    </div>
-                    <div class="form-group">
-                        <label for="pitcherPhone"><i class="fas fa-phone"></i> Phone Number</label>
-                        <input type="tel" id="pitcherPhone" placeholder="Enter your phone number">
-                    </div>
-                    <div class="form-group">
-                        <label for="ideaTitle"><i class="fas fa-star"></i> Idea Title</label>
-                        <input type="text" id="ideaTitle" placeholder="Enter your idea title">
-                    </div>
-                    <div class="form-group">
-                        <label for="ideaCategory"><i class="fas fa-folder"></i> Idea Category</label>
-                        <select id="ideaCategory">
-                            <option value="technology">Technology</option>
-                            <option value="healthcare">Healthcare</option>
-                            <option value="finance">Finance</option>
-                            <option value="education">Education</option>
-                            <option value="retail">Retail</option>
-                            <option value="manufacturing">Manufacturing</option>
-                            <option value="agriculture">Agriculture</option>
-                            <option value="other">Other</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="fundingNeeded"><i class="fas fa-dollar-sign"></i> Funding Needed (USD)</label>
-                        <input type="number" id="fundingNeeded" placeholder="Enter funding amount needed">
-                    </div>
-                    <div class="form-group">
-                        <label for="ideaDescription"><i class="fas fa-align-left"></i> Idea Description</label>
-                        <textarea id="ideaDescription" placeholder="Describe your idea in detail"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="targetMarket"><i class="fas fa-bullseye"></i> Target Market</label>
-                        <textarea id="targetMarket" placeholder="Describe your target market"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="ideaDocuments"><i class="fas fa-file-upload"></i> Upload Documents</label>
-                        <div class="file-upload">
-                            <input type="file" id="ideaDocuments" multiple accept=".pdf,.doc,.docx,.txt">
-                            <label for="ideaDocuments" class="file-upload-label">
-                                <i class="fas fa-cloud-upload-alt"></i>
-                                Click to upload documents (PDF, DOC, TXT)
-                            </label>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="ideaVideo"><i class="fas fa-video"></i> Upload Pitch Video</label>
-                        <div class="file-upload">
-                            <input type="file" id="ideaVideo" accept="video/*">
-                            <label for="ideaVideo" class="file-upload-label">
-                                <i class="fas fa-video"></i>
-                                Click to upload pitch video
-                            </label>
-                        </div>
-                    </div>
-                </div>
-                <button class="create-profile-btn" onclick="createProfile('idea-pitcher')">
-                    <i class="fas fa-save"></i>
-                    Create Pitcher Profile
-                </button>
-            </div>
-
-            <!-- Skilled Worker Form -->
-            <div id="skilledWorkerForm" class="form-container">
-                <h3><i class="fas fa-tools"></i> Skilled Worker Profile</h3>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="workerName"><i class="fas fa-user"></i> Full Name</label>
-                        <input type="text" id="workerName" placeholder="Enter your full name">
-                    </div>
-                    <div class="form-group">
-                        <label for="workerEmail"><i class="fas fa-envelope"></i> Email</label>
-                        <input type="email" id="workerEmail" placeholder="Enter your email">
-                    </div>
-                    <div class="form-group">
-                        <label for="workerPhone"><i class="fas fa-phone"></i> Phone Number</label>
-                        <input type="tel" id="workerPhone" placeholder="Enter your phone number">
-                    </div>
-                    <div class="form-group">
-                        <label for="workerSkills"><i class="fas fa-cogs"></i> Primary Skills</label>
-                        <input type="text" id="workerSkills" placeholder="e.g., Web Development, Graphic Design, Marketing">
-                    </div>
-                    <div class="form-group">
-                        <label for="workerExperience"><i class="fas fa-calendar-alt"></i> Years of Experience</label>
-                        <input type="number" id="workerExperience" placeholder="Enter years of experience">
-                    </div>
-                    <div class="form-group">
-                        <label for="workerRate"><i class="fas fa-dollar-sign"></i> Hourly Rate (USD)</label>
-                        <input type="number" id="workerRate" placeholder="Enter your hourly rate">
-                    </div>
-                    <div class="form-group">
-                        <label for="workerLocation"><i class="fas fa-map-marker-alt"></i> Location</label>
-                        <input type="text" id="workerLocation" placeholder="Enter your location">
-                    </div>
-                    <div class="form-group">
-                        <label for="workerAvailability"><i class="fas fa-clock"></i> Availability</label>
-                        <select id="workerAvailability">
-                            <option value="full-time">Full-time</option>
-                            <option value="part-time">Part-time</option>
-                            <option value="freelance">Freelance</option>
-                            <option value="contract">Contract</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="workerBio"><i class="fas fa-info-circle"></i> Professional Bio</label>
-                        <textarea id="workerBio" placeholder="Tell us about your professional background and expertise"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="portfolioImages"><i class="fas fa-images"></i> Upload Portfolio Images</label>
-                        <div class="file-upload">
-                            <input type="file" id="portfolioImages" multiple accept="image/*">
-                            <label for="portfolioImages" class="file-upload-label">
-                                <i class="fas fa-camera"></i>
-                                Click to upload portfolio images
-                            </label>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="workerCertifications"><i class="fas fa-certificate"></i> Certifications</label>
-                        <textarea id="workerCertifications" placeholder="List your relevant certifications"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="workerWebsite"><i class="fas fa-globe"></i> Portfolio Website</label>
-                        <input type="url" id="workerWebsite" placeholder="Enter your portfolio website URL">
-                    </div>
-                </div>
-                <button class="create-profile-btn" onclick="createProfile('skilled-worker')">
-                    <i class="fas fa-save"></i>
-                    Create Worker Profile
-                </button>
-            </div>
-
-            <!-- Hirer Form -->
-            <div id="hirerForm" class="form-container">
-                <h3><i class="fas fa-handshake"></i> Hirer Profile</h3>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="hirerName"><i class="fas fa-building"></i> Full Name / Company Name</label>
-                        <input type="text" id="hirerName" placeholder="Enter your name or company name">
-                    </div>
-                    <div class="form-group">
-                        <label for="hirerEmail"><i class="fas fa-envelope"></i> Email</label>
-                        <input type="email" id="hirerEmail" placeholder="Enter your email">
-                    </div>
-                    <div class="form-group">
-                        <label for="hirerPhone"><i class="fas fa-phone"></i> Phone Number</label>
-                        <input type="tel" id="hirerPhone" placeholder="Enter your phone number">
-                    </div>
-                    <div class="form-group">
-                        <label for="skillsNeeded"><i class="fas fa-search"></i> Skills Needed</label>
-                        <select id="skillsNeeded" multiple>
-                            <option value="web-development">Web Development</option>
-                            <option value="mobile-development">Mobile Development</option>
-                            <option value="graphic-design">Graphic Design</option>
-                            <option value="digital-marketing">Digital Marketing</option>
-                            <option value="content-writing">Content Writing</option>
-                            <option value="data-analysis">Data Analysis</option>
-                            <option value="project-management">Project Management</option>
-                            <option value="consulting">Consulting</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="hirerBudget"><i class="fas fa-dollar-sign"></i> Project Budget (USD)</label>
-                        <input type="number" id="hirerBudget" placeholder="Enter your project budget">
-                    </div>
-                    <div class="form-group">
-                        <label for="hirerLocation"><i class="fas fa-map-marker-alt"></i> Location</label>
-                        <input type="text" id="hirerLocation" placeholder="Enter your location">
-                    </div>
-                    <div class="form-group">
-                        <label for="projectDuration"><i class="fas fa-hourglass-half"></i> Project Duration</label>
-                        <select id="projectDuration">
-                            <option value="1-week">1 Week</option>
-                            <option value="2-4-weeks">2-4 Weeks</option>
-                            <option value="1-3-months">1-3 Months</option>
-                            <option value="3-6-months">3-6 Months</option>
-                            <option value="6-months-plus">6+ Months</option>
-                            <option value="ongoing">Ongoing</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="consultationTime"><i class="fas fa-calendar-check"></i> Preferred Consultation Time</label>
-                        <input type="datetime-local" id="consultationTime">
-                    </div>
-                    <div class="form-group">
-                        <label for="projectDescription"><i class="fas fa-clipboard-list"></i> Project Description</label>
-                        <textarea id="projectDescription" placeholder="Describe your project requirements in detail"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="urgency"><i class="fas fa-exclamation-triangle"></i> Project Urgency</label>
-                        <select id="urgency">
-                            <option value="low">Low - No rush</option>
-                            <option value="medium">Medium - Within a month</option>
-                            <option value="high">High - Within 2 weeks</option>
-                            <option value="urgent">Urgent - ASAP</option>
-                        </select>
-                    </div>
-                </div>
-                <button class="create-profile-btn" onclick="createProfile('hirer')">
-                    <i class="fas fa-save"></i>
-                    Create Hirer Profile
-                </button>
-            </div>
-
-            <!-- Dashboard Content -->
-            <div id="dashboardContent" class="dashboard-content">
-                <div class="profile-card">
-                    <h2 id="profileTitle">
-                        <i class="fas fa-user-circle"></i>
-                        Your Profile
-                    </h2>
-                    <div class="profile-info" id="profileInfo">
-                        <!-- Profile information will be populated here -->
-                    </div>
-                </div>
-            </div>
+            <input
+              type="file"
+              id="profilePicInput"
+              accept="image/*"
+              style="display: none"
+              onchange="handleProfilePicUpload(event)"
+            />
+          </div>
+          <h2 id="welcomeMessage">Welcome! Please complete your profile</h2>
         </div>
+
+        <!-- User Type Selection -->
+        <div id="userTypeSelection">
+          <div class="user-type-selector">
+            <button class="user-type-btn" onclick="selectUserType('investor')">
+              <i class="fas fa-chart-line"></i>
+              Investor
+            </button>
+            <button
+              class="user-type-btn"
+              onclick="selectUserType('idea-pitcher')"
+            >
+              <i class="fas fa-lightbulb"></i>
+              Idea Pitcher
+            </button>
+            <button
+              class="user-type-btn"
+              onclick="selectUserType('skilled-worker')"
+            >
+              <i class="fas fa-tools"></i>
+              Skilled Worker
+            </button>
+            <button class="user-type-btn" onclick="selectUserType('hirer')">
+              <i class="fas fa-handshake"></i>
+              Hirer
+            </button>
+          </div>
+        </div>
+
+        <!-- Investor Form -->
+        <div id="investorForm" class="form-container">
+          <h3><i class="fas fa-chart-line"></i> Investor Profile</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="investorName"
+                ><i class="fas fa-user"></i> Full Name</label
+              >
+              <input
+                type="text"
+                id="investorName"
+                placeholder="Enter your full name"
+              />
+            </div>
+            <div class="form-group">
+              <label for="investorEmail"
+                ><i class="fas fa-envelope"></i> Email</label
+              >
+              <input
+                type="email"
+                id="investorEmail"
+                placeholder="Enter your email"
+              />
+            </div>
+            <div class="form-group">
+              <label for="investorPhone"
+                ><i class="fas fa-phone"></i> Phone Number</label
+              >
+              <input
+                type="tel"
+                id="investorPhone"
+                placeholder="Enter your phone number"
+              />
+            </div>
+            <div class="form-group">
+              <label for="investorBudget"
+                ><i class="fas fa-dollar-sign"></i> Investment Budget
+                (USD)</label
+              >
+              <input
+                type="number"
+                id="investorBudget"
+                placeholder="Enter your budget"
+              />
+            </div>
+            <div class="form-group">
+              <label for="investmentAreas"
+                ><i class="fas fa-tags"></i> Investment Interest Areas</label
+              >
+              <select id="investmentAreas" multiple>
+                <option value="technology">Technology</option>
+                <option value="healthcare">Healthcare</option>
+                <option value="finance">Finance</option>
+                <option value="education">Education</option>
+                <option value="real-estate">Real Estate</option>
+                <option value="retail">Retail</option>
+                <option value="manufacturing">Manufacturing</option>
+                <option value="agriculture">Agriculture</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="consultationPreference"
+                ><i class="fas fa-comments"></i> Consultation Preference</label
+              >
+              <select id="consultationPreference">
+                <option value="in-person">In-Person</option>
+                <option value="video-call">Video Call</option>
+                <option value="phone-call">Phone Call</option>
+                <option value="email">Email</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="investorLocation"
+                ><i class="fas fa-map-marker-alt"></i> Location</label
+              >
+              <input
+                type="text"
+                id="investorLocation"
+                placeholder="Enter your location"
+              />
+            </div>
+            <div class="form-group">
+              <label for="investorBio"
+                ><i class="fas fa-info-circle"></i> Bio/About</label
+              >
+              <textarea
+                id="investorBio"
+                placeholder="Tell us about yourself and your investment philosophy"
+              ></textarea>
+            </div>
+          </div>
+          <button
+            class="create-profile-btn"
+            onclick="createProfile('investor')"
+          >
+            <i class="fas fa-save"></i>
+            Create Investor Profile
+          </button>
+        </div>
+
+        <!-- Idea Pitcher Form -->
+        <div id="ideaPitcherForm" class="form-container">
+          <h3><i class="fas fa-lightbulb"></i> Idea Pitcher Profile</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="pitcherName"
+                ><i class="fas fa-user"></i> Full Name</label
+              >
+              <input
+                type="text"
+                id="pitcherName"
+                placeholder="Enter your full name"
+              />
+            </div>
+            <div class="form-group">
+              <label for="pitcherEmail"
+                ><i class="fas fa-envelope"></i> Email</label
+              >
+              <input
+                type="email"
+                id="pitcherEmail"
+                placeholder="Enter your email"
+              />
+            </div>
+            <div class="form-group">
+              <label for="pitcherPhone"
+                ><i class="fas fa-phone"></i> Phone Number</label
+              >
+              <input
+                type="tel"
+                id="pitcherPhone"
+                placeholder="Enter your phone number"
+              />
+            </div>
+            <div class="form-group">
+              <label for="ideaTitle"
+                ><i class="fas fa-star"></i> Idea Title</label
+              >
+              <input
+                type="text"
+                id="ideaTitle"
+                placeholder="Enter your idea title"
+              />
+            </div>
+            <div class="form-group">
+              <label for="ideaCategory"
+                ><i class="fas fa-folder"></i> Idea Category</label
+              >
+              <select id="ideaCategory">
+                <option value="technology">Technology</option>
+                <option value="healthcare">Healthcare</option>
+                <option value="finance">Finance</option>
+                <option value="education">Education</option>
+                <option value="retail">Retail</option>
+                <option value="manufacturing">Manufacturing</option>
+                <option value="agriculture">Agriculture</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="fundingNeeded"
+                ><i class="fas fa-dollar-sign"></i> Funding Needed (USD)</label
+              >
+              <input
+                type="number"
+                id="fundingNeeded"
+                placeholder="Enter funding amount needed"
+              />
+            </div>
+            <div class="form-group">
+              <label for="ideaDescription"
+                ><i class="fas fa-align-left"></i> Idea Description</label
+              >
+              <textarea
+                id="ideaDescription"
+                placeholder="Describe your idea in detail"
+              ></textarea>
+            </div>
+            <div class="form-group">
+              <label for="targetMarket"
+                ><i class="fas fa-bullseye"></i> Target Market</label
+              >
+              <textarea
+                id="targetMarket"
+                placeholder="Describe your target market"
+              ></textarea>
+            </div>
+            <div class="form-group">
+              <label for="ideaDocuments"
+                ><i class="fas fa-file-upload"></i> Upload Documents</label
+              >
+              <div class="file-upload">
+                <input
+                  type="file"
+                  id="ideaDocuments"
+                  multiple
+                  accept=".pdf,.doc,.docx,.txt"
+                />
+                <label for="ideaDocuments" class="file-upload-label">
+                  <i class="fas fa-cloud-upload-alt"></i>
+                  Click to upload documents (PDF, DOC, TXT)
+                </label>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="ideaVideo"
+                ><i class="fas fa-video"></i> Upload Pitch Video</label
+              >
+              <div class="file-upload">
+                <input type="file" id="ideaVideo" accept="video/*" />
+                <label for="ideaVideo" class="file-upload-label">
+                  <i class="fas fa-video"></i>
+                  Click to upload pitch video
+                </label>
+              </div>
+            </div>
+          </div>
+          <button
+            class="create-profile-btn"
+            onclick="createProfile('idea-pitcher')"
+          >
+            <i class="fas fa-save"></i>
+            Create Pitcher Profile
+          </button>
+        </div>
+
+        <!-- Skilled Worker Form -->
+        <div id="skilledWorkerForm" class="form-container">
+          <h3><i class="fas fa-tools"></i> Skilled Worker Profile</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="workerName"
+                ><i class="fas fa-user"></i> Full Name</label
+              >
+              <input
+                type="text"
+                id="workerName"
+                placeholder="Enter your full name"
+              />
+            </div>
+            <div class="form-group">
+              <label for="workerEmail"
+                ><i class="fas fa-envelope"></i> Email</label
+              >
+              <input
+                type="email"
+                id="workerEmail"
+                placeholder="Enter your email"
+              />
+            </div>
+            <div class="form-group">
+              <label for="workerPhone"
+                ><i class="fas fa-phone"></i> Phone Number</label
+              >
+              <input
+                type="tel"
+                id="workerPhone"
+                placeholder="Enter your phone number"
+              />
+            </div>
+            <div class="form-group">
+              <label for="workerSkills"
+                ><i class="fas fa-cogs"></i> Primary Skills</label
+              >
+              <input
+                type="text"
+                id="workerSkills"
+                placeholder="e.g., Web Development, Graphic Design, Marketing"
+              />
+            </div>
+            <div class="form-group">
+              <label for="workerExperience"
+                ><i class="fas fa-calendar-alt"></i> Years of Experience</label
+              >
+              <input
+                type="number"
+                id="workerExperience"
+                placeholder="Enter years of experience"
+              />
+            </div>
+            <div class="form-group">
+              <label for="workerRate"
+                ><i class="fas fa-dollar-sign"></i> Hourly Rate (USD)</label
+              >
+              <input
+                type="number"
+                id="workerRate"
+                placeholder="Enter your hourly rate"
+              />
+            </div>
+            <div class="form-group">
+              <label for="workerLocation"
+                ><i class="fas fa-map-marker-alt"></i> Location</label
+              >
+              <input
+                type="text"
+                id="workerLocation"
+                placeholder="Enter your location"
+              />
+            </div>
+            <div class="form-group">
+              <label for="workerAvailability"
+                ><i class="fas fa-clock"></i> Availability</label
+              >
+              <select id="workerAvailability">
+                <option value="full-time">Full-time</option>
+                <option value="part-time">Part-time</option>
+                <option value="freelance">Freelance</option>
+                <option value="contract">Contract</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="workerBio"
+                ><i class="fas fa-info-circle"></i> Professional Bio</label
+              >
+              <textarea
+                id="workerBio"
+                placeholder="Tell us about your professional background and expertise"
+              ></textarea>
+            </div>
+            <div class="form-group">
+              <label for="portfolioImages"
+                ><i class="fas fa-images"></i> Upload Portfolio Images</label
+              >
+              <div class="file-upload">
+                <input
+                  type="file"
+                  id="portfolioImages"
+                  multiple
+                  accept="image/*"
+                />
+                <label for="portfolioImages" class="file-upload-label">
+                  <i class="fas fa-camera"></i>
+                  Click to upload portfolio images
+                </label>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="workerCertifications"
+                ><i class="fas fa-certificate"></i> Certifications</label
+              >
+              <textarea
+                id="workerCertifications"
+                placeholder="List your relevant certifications"
+              ></textarea>
+            </div>
+            <div class="form-group">
+              <label for="workerWebsite"
+                ><i class="fas fa-globe"></i> Portfolio Website</label
+              >
+              <input
+                type="url"
+                id="workerWebsite"
+                placeholder="Enter your portfolio website URL"
+              />
+            </div>
+          </div>
+          <button
+            class="create-profile-btn"
+            onclick="createProfile('skilled-worker')"
+          >
+            <i class="fas fa-save"></i>
+            Create Worker Profile
+          </button>
+        </div>
+
+        <!-- Hirer Form -->
+        <div id="hirerForm" class="form-container">
+          <h3><i class="fas fa-handshake"></i> Hirer Profile</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="hirerName"
+                ><i class="fas fa-building"></i> Full Name / Company Name</label
+              >
+              <input
+                type="text"
+                id="hirerName"
+                placeholder="Enter your name or company name"
+              />
+            </div>
+            <div class="form-group">
+              <label for="hirerEmail"
+                ><i class="fas fa-envelope"></i> Email</label
+              >
+              <input
+                type="email"
+                id="hirerEmail"
+                placeholder="Enter your email"
+              />
+            </div>
+            <div class="form-group">
+              <label for="hirerPhone"
+                ><i class="fas fa-phone"></i> Phone Number</label
+              >
+              <input
+                type="tel"
+                id="hirerPhone"
+                placeholder="Enter your phone number"
+              />
+            </div>
+            <div class="form-group">
+              <label for="skillsNeeded"
+                ><i class="fas fa-search"></i> Skills Needed</label
+              >
+              <select id="skillsNeeded" multiple>
+                <option value="web-development">Web Development</option>
+                <option value="mobile-development">Mobile Development</option>
+                <option value="graphic-design">Graphic Design</option>
+                <option value="digital-marketing">Digital Marketing</option>
+                <option value="content-writing">Content Writing</option>
+                <option value="data-analysis">Data Analysis</option>
+                <option value="project-management">Project Management</option>
+                <option value="consulting">Consulting</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="hirerBudget"
+                ><i class="fas fa-dollar-sign"></i> Project Budget (USD)</label
+              >
+              <input
+                type="number"
+                id="hirerBudget"
+                placeholder="Enter your project budget"
+              />
+            </div>
+            <div class="form-group">
+              <label for="hirerLocation"
+                ><i class="fas fa-map-marker-alt"></i> Location</label
+              >
+              <input
+                type="text"
+                id="hirerLocation"
+                placeholder="Enter your location"
+              />
+            </div>
+            <div class="form-group">
+              <label for="projectDuration"
+                ><i class="fas fa-hourglass-half"></i> Project Duration</label
+              >
+              <select id="projectDuration">
+                <option value="1-week">1 Week</option>
+                <option value="2-4-weeks">2-4 Weeks</option>
+                <option value="1-3-months">1-3 Months</option>
+                <option value="3-6-months">3-6 Months</option>
+                <option value="6-months-plus">6+ Months</option>
+                <option value="ongoing">Ongoing</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="consultationTime"
+                ><i class="fas fa-calendar-check"></i> Preferred Consultation
+                Time</label
+              >
+              <input type="datetime-local" id="consultationTime" />
+            </div>
+            <div class="form-group">
+              <label for="projectDescription"
+                ><i class="fas fa-clipboard-list"></i> Project
+                Description</label
+              >
+              <textarea
+                id="projectDescription"
+                placeholder="Describe your project requirements in detail"
+              ></textarea>
+            </div>
+            <div class="form-group">
+              <label for="urgency"
+                ><i class="fas fa-exclamation-triangle"></i> Project
+                Urgency</label
+              >
+              <select id="urgency">
+                <option value="low">Low - No rush</option>
+                <option value="medium">Medium - Within a month</option>
+                <option value="high">High - Within 2 weeks</option>
+                <option value="urgent">Urgent - ASAP</option>
+              </select>
+            </div>
+          </div>
+          <button class="create-profile-btn" onclick="createProfile('hirer')">
+            <i class="fas fa-save"></i>
+            Create Hirer Profile
+          </button>
+        </div>
+
+        <!-- Dashboard Content -->
+        <div id="dashboardContent" class="dashboard-content">
+          <div class="profile-card">
+            <h2 id="profileTitle">
+              <i class="fas fa-user-circle"></i>
+              Your Profile
+            </h2>
+            <div class="profile-info" id="profileInfo">
+              <!-- Profile information will be populated here -->
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <script src="script.js"></script>
-</body>
+  </body>
 </html>

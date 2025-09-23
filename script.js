@@ -460,7 +460,14 @@ function displayProfileInfo() {
     hirer: "Hirer",
   };
 
-  profileTitle.innerHTML = `<i class="fas fa-user-circle"></i> ${userTypeNames[profileData.userType]} Profile`;
+  const userTypeIcons = {
+    investor: "fas fa-chart-line",
+    "idea-pitcher": "fas fa-lightbulb",
+    "skilled-worker": "fas fa-tools",
+    hirer: "fas fa-handshake",
+  };
+
+  profileTitle.innerHTML = `<i class="${userTypeIcons[profileData.userType]}"></i> ${userTypeNames[profileData.userType]} Profile`;
 
   let infoHTML = "";
   const iconMap = getIconMap();
@@ -483,7 +490,48 @@ function displayProfileInfo() {
     }
   });
 
+  // Add explore button based on user type
+  const exploreSection = getExploreButton(profileData.userType);
+  infoHTML += exploreSection;
+
   profileInfo.innerHTML = infoHTML;
+}
+
+function getExploreButton(userType) {
+  const exploreButtons = {
+    investor: {
+      text: "Explore Ideas",
+      icon: "fas fa-lightbulb",
+      link: "explore-idea.html", // Updated to match your file
+    },
+    "idea-pitcher": {
+      text: "Explore Investors",
+      icon: "fas fa-chart-line",
+      link: "explore-investors.html", // You need to create this file
+    },
+    "skilled-worker": {
+      text: "Explore Clients",
+      icon: "fas fa-handshake",
+      link: "explore-clients.html", // You need to create this file
+    },
+    hirer: {
+      text: "Explore Skills",
+      icon: "fas fa-tools",
+      link: "explore-skill.html", // Updated to match your file
+    },
+  };
+
+  const button = exploreButtons[userType];
+  if (!button) return "";
+
+  return `
+    <div class="info-item explore-section">
+      <a href="${button.link}" class="explore-btn">
+        <i class="${button.icon}"></i>
+        ${button.text}
+      </a>
+    </div>
+  `;
 }
 
 function shouldDisplayField(key, value) {
@@ -801,38 +849,68 @@ function goHome() {
 }
 
 function logout() {
-  if (
-    confirm(
-      "Are you sure you want to logout? This will clear your profile data."
-    )
-  ) {
-    // Clear stored data
-    localStorage.removeItem("mindmarketProfile");
-    clearAllDraftData();
-    profileData = {};
+  showLogoutConfirmation();
+}
 
-    // Reset application state
-    goHome();
+function showLogoutConfirmation() {
+  const confirmModal = document.createElement("div");
+  confirmModal.className = "logout-modal";
+  confirmModal.innerHTML = `
+    <div class="logout-modal-content">
+      <div class="logout-modal-header">
+        <i class="fas fa-sign-out-alt"></i>
+        <h3>Confirm Logout</h3>
+      </div>
+      <div class="logout-modal-body">
+        <p>Are you sure you want to logout? This will clear your profile data.</p>
+      </div>
+      <div class="logout-modal-actions">
+        <button class="logout-cancel-btn" onclick="closeLogoutModal()">
+          <i class="fas fa-times"></i>
+          Cancel
+        </button>
+        <button class="logout-confirm-btn" onclick="confirmLogout()">
+          <i class="fas fa-sign-out-alt"></i>
+          Logout
+        </button>
+      </div>
+    </div>
+  `;
 
-    showNotification(
-      "success",
-      "Logged out successfully",
-      "fas fa-sign-out-alt"
-    );
+  document.body.appendChild(confirmModal);
 
-    // Redirect to sign-in page
+  // Show modal with animation
+  setTimeout(() => {
+    confirmModal.classList.add("show");
+  }, 10);
+}
+
+function closeLogoutModal() {
+  const modal = document.querySelector(".logout-modal");
+  if (modal) {
+    modal.classList.remove("show");
     setTimeout(() => {
-      window.location.href = "sign-in.html";
-    }, 2000);
+      modal.remove();
+    }, 300);
   }
 }
 
-/**
+function confirmLogout() {
+  // Clear stored data
+  localStorage.removeItem("mindmarketProfile");
+  clearAllDraftData();
+  profileData = {};
 
- * Hide the loading state on an element
+  // Close modal
+  closeLogoutModal();
 
- * @param {HTMLElement} element - The element to hide the loading state on
+  // Reset application state
+  goHome();
 
- * @param {string} originalContent - The original content of the element to restore
+  showNotification("success", "Logged out successfully", "fas fa-sign-out-alt");
 
- */
+  // Redirect to sign-in page
+  setTimeout(() => {
+    window.location.href = "sign-in.html";
+  }, 2000);
+}
