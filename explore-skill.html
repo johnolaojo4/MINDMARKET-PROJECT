@@ -24,21 +24,47 @@
   <body>
     <header>
       <nav>
-        <div class="logo">
-          <img src="images/BlackLogo.svg" alt="Mind Market logo" />
-        </div>
-        <div class="links">
-          <a href="index.html">Home</a>
-          <a href="explore-idea.html">Explore Ideas <i class="fa-solid fa-angle-down"></i></a>
-          <a href="#">Explore Skills <i class="fa-solid fa-angle-down"></i></a>
-          <a href="about-us.html">About Us</a>
-        </div>
-        <div class="auth-links">
-          <a href="sign-in.html" class="sign-in">Sign In</a>
-          <a href="sign-up.html" class="sign-up">Sign Up</a>
-        </div>
-      </nav>
+  <div class="logo">
+    <img src="images/Logo.png" alt="Mind Market logo" />
+  </div>
+  
+  <!-- Desktop Navigation -->
+  <div class="links">
+    <a href="#">Home</a>
+    <a href="explore-idea.html">Explore Ideas <i class="fa-solid fa-angle-down"></i></a>
+    <a href="explore-skill.html">Explore Skills <i class="fa-solid fa-angle-down"></i></a>
+    <a href="about-us.html">About Us</a>
+  </div>
+  
+  <!-- Desktop Auth Links -->
+  <div class="auth-links">
+    <a href="sign-in.html" class="sign-in">Sign In</a>
+    <a href="sign-up.html" class="sign-up">Sign Up</a>
+  </div>
+  
+  <!-- Mobile Hamburger Menu -->
+  <div class="hamburger" id="hamburger">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</nav>
+
+<!-- Mobile Menu  -->
+<div class="mobile-nav" id="mobileNav">
+  <a href="index.html">Home</a>
+  <a href="explore-idea.html">Explore Ideas</a>
+  <a href="#">Explore Skills</a>
+  <a href="about-us.html">About Us</a>
+  
+  <div class="auth-links">
+    <a href="sign-in.html" class="sign-in">Sign In</a>
+    <a href="sign-up.html" class="sign-up">Sign Up</a>
+  </div>
+</div>
     </header>
+
+
     <div class="section1">
         <h2>Explore Skills</h2>
         <div class="search-box">
@@ -342,5 +368,6 @@
             <p>&copy; 2024 MindMarket. All rights reserved.</p>
         </div>
     </footer>
+    <script src="js/main.js"></script>
   </body>
 </html>

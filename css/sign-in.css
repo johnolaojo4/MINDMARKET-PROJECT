@@ -6,7 +6,7 @@
 }
 
 body {
-  background: linear-gradient(135deg, #fdfdfd 0%, #e8e8e8 100%);
+  background: #f8f8f8;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -15,7 +15,7 @@ body {
 }
 
 .logo {
-  margin-bottom: 20px;
+  margin-bottom: 40px;
 }
 
 .logo img {

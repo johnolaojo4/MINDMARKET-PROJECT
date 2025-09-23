@@ -1,73 +1,29 @@
-// main.js - Updated with proper card navigation
+// main.js
 
 document.addEventListener("DOMContentLoaded", () => {
   // =========================
-  // 1. Make idea cards clickable
+  // 1. Idea card click functionality
   // =========================
   const cards = document.querySelectorAll(".card");
 
   cards.forEach((card) => {
-    // Make the entire card clickable
     card.style.cursor = "pointer";
-    
-    card.addEventListener("click", (e) => {
-      // Prevent navigation if clicking on action buttons
-      if (e.target.closest('.action-btn')) {
-        return;
-      }
 
-      // Get the idea ID from data-id attribute
-      const ideaId = card.getAttribute('data-id');
-      
+    card.addEventListener("click", (e) => {
+      if (e.target.closest(".action-btn")) return;
+
+      const ideaId = card.getAttribute("data-id");
+
       if (ideaId) {
-        // Redirect to detail page with ID in query string
         window.location.href = `idea-detail.html?id=${ideaId}`;
       } else {
-        console.error('Card missing data-id attribute');
+        console.error("Card missing data-id attribute");
       }
     });
   });
 
   // =========================
-  // 2. Handle action buttons separately (prevent navigation)
-  // =========================
-  const actionButtons = document.querySelectorAll('.action-btn');
-  
-  actionButtons.forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation(); // Prevent card click event
-      
-      if (btn.classList.contains('heart-btn')) {
-        // Toggle heart state
-        btn.style.opacity = btn.style.opacity === '0.5' ? '1' : '0.5';
-      } else if (btn.classList.contains('bookmark-btn')) {
-        // Toggle bookmark state  
-        btn.style.opacity = btn.style.opacity === '0.5' ? '1' : '0.5';
-      } else if (btn.classList.contains('share-btn')) {
-        // Copy link functionality
-        const card = btn.closest('.card');
-        const ideaId = card.getAttribute('data-id');
-        if (ideaId) {
-          const link = `${window.location.origin}/idea-detail.html?id=${ideaId}`;
-          navigator.clipboard.writeText(link).then(() => {
-            alert('Link copied to clipboard!');
-          }).catch(() => {
-            prompt('Copy this link:', link);
-          });
-        }
-      } else if (btn.classList.contains('comment-btn')) {
-        
-        const card = btn.closest('.card');
-        const ideaId = card.getAttribute('data-id');
-        if (ideaId) {
-          window.location.href = `idea-detail.html?id=${ideaId}#comments`;
-        }
-      }
-    });
-  });
-
-  // =========================
-  // 3. FAQ toggle functionality
+  // 2. FAQ toggle functionality
   // =========================
   const faqButtons = document.querySelectorAll(".faq-question");
 
@@ -77,7 +33,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const answer = faqItem.querySelector(".faq-answer");
       const plusIcon = btn.querySelector(".plus-icon");
 
-      // Toggle open class
       faqItem.classList.toggle("open");
 
       if (faqItem.classList.contains("open")) {
@@ -88,5 +43,95 @@ document.addEventListener("DOMContentLoaded", () => {
         if (plusIcon) plusIcon.textContent = "+";
       }
     });
-  });  
+  });
+
+  // =========================
+  // 3. Hamburger Menu functionality
+  // =========================
+  const hamburger = document.getElementById("hamburger");
+  const mobileNav = document.getElementById("mobileNav");
+  const body = document.body;
+
+  if (hamburger && mobileNav) {
+    // Toggle mobile menu
+    hamburger.addEventListener("click", (e) => {
+      e.stopPropagation();
+      hamburger.classList.toggle("active");
+      mobileNav.classList.toggle("active");
+      body.classList.toggle("menu-open");
+    });
+
+    // Close mobile menu when clicking a link
+    mobileNav.addEventListener("click", (e) => {
+      if (e.target.tagName === "A") {
+        hamburger.classList.remove("active");
+        mobileNav.classList.remove("active");
+        body.classList.remove("menu-open");
+      }
+    });
+
+    // Close mobile menu when clicking outside
+    document.addEventListener("click", (e) => {
+      if (!hamburger.contains(e.target) && !mobileNav.contains(e.target)) {
+        hamburger.classList.remove("active");
+        mobileNav.classList.remove("active");
+        body.classList.remove("menu-open");
+      }
+    });
+
+    // Close on escape key
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        hamburger.classList.remove("active");
+        mobileNav.classList.remove("active");
+        body.classList.remove("menu-open");
+      }
+    });
+  }
+
+  // =========================
+  // 4. Search functionality 
+  // =========================
+  const searchInput = document.getElementById("searchInput");
+  const filterBtn = document.getElementById("filterBtn");
+
+  if (searchInput) {
+    // Create "No results" message
+    const noResults = document.createElement("p");
+    noResults.textContent = "No results found";
+    noResults.classList.add("no-results");
+    noResults.style.display = "none";
+    noResults.style.textAlign = "center";
+    noResults.style.marginTop = "1rem";
+    noResults.style.color = "#666";
+    searchInput.parentElement.appendChild(noResults);
+
+    searchInput.addEventListener("input", (e) => {
+      const query = e.target.value.trim().toLowerCase();
+      const cards = document.querySelectorAll(".card");
+      let anyVisible = false;
+
+      cards.forEach((card) => {
+        const title = card.querySelector(".title")?.textContent.toLowerCase() || "";
+
+        if (title.includes(query)) {
+          card.style.display = "block"; // show card
+          anyVisible = true;
+        } else {
+          card.style.display = "none"; // hide card
+        }
+      });
+
+      // Toggle "No results" message
+      noResults.style.display = anyVisible ? "none" : "block";
+    });
+  }
+
+  if (filterBtn) {
+    filterBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      console.log("Filter clicked");
+      
+    });
+  }
 });
