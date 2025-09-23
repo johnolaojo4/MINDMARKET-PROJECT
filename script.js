@@ -10,17 +10,18 @@ class UserProfileManager {
    */
   init() {
     this.bindEvents();
-    this.checkAuthStatus(); // Check auth status on every page load
+    this.checkAuthStatus(); // NEW: Check auth status on every page load
     this.loadSavedData(); // Load data only if authenticated
     this.initializeConsultationScheduling();
   }
 
   bindEvents() {
     const userTypeSelect = document.getElementById("userType");
-    const form = document.getElementById("userForm");
+    const form = document.getElementById("userForm"); // This is the registration/edit form
     const editButton = document.getElementById("editProfile");
     const logoutBtn = document.getElementById("logoutBtn"); // Get the logout button
 
+    // Event listeners for the registration/edit form (if visible)
     userTypeSelect?.addEventListener("change", (e) => {
       this.showRelevantSection(e.target.value);
     });
@@ -30,17 +31,18 @@ class UserProfileManager {
       this.handleFormSubmit();
     });
 
+    // Event listeners for dashboard elements (if visible)
     editButton?.addEventListener("click", () => {
-      this.showForm();
+      this.showForm(); // Show the registration form for editing
     });
 
     logoutBtn?.addEventListener("click", () => { // Attach logout event listener
       this.logout();
     });
 
-    // File input handlers
+    // File input handlers (relevant for registration/edit form)
     this.setupFileHandlers();
-    // Setup consultation handlers
+    // Setup consultation handlers (relevant for registration/edit form and dashboard)
     this.setupConsultationHandlers();
   }
 
@@ -67,7 +69,7 @@ class UserProfileManager {
   }
 
   setupConsultationHandlers() {
-    // Custom consultation rate handler
+    // Custom consultation rate handler (on registration/edit form)
     const consultationRateSelect = document.getElementById("consultationRate");
     consultationRateSelect?.addEventListener("change", function () {
       const customRateGroup = document.getElementById("customRateGroup");
@@ -80,7 +82,7 @@ class UserProfileManager {
       }
     });
 
-    // Investment interest "others" handler
+    // Investment interest "others" handler (on registration/edit form)
     const investmentInterestsSelect = document.getElementById(
       "investmentInterests"
     );
@@ -97,19 +99,19 @@ class UserProfileManager {
       }
     });
 
-    // Schedule consultation button (in dashboard.html)
+    // Schedule consultation button (on dashboard.html)
     const scheduleBtn = document.getElementById("scheduleConsultation");
     scheduleBtn?.addEventListener("click", () => {
       this.openConsultationModal();
     });
 
-    // Request consultation button (in the modal)
+    // Request consultation button (inside the modal)
     const requestBtn = document.getElementById("requestConsultation");
     requestBtn?.addEventListener("click", () => {
       this.handleConsultationRequest();
     });
 
-    // Modal close handlers (only consultation modal remains)
+    // Modal close handler (for consultation modal)
     const closeConsultationModal = document.getElementById(
       "closeConsultationModal"
     );
@@ -118,11 +120,10 @@ class UserProfileManager {
       this.closeConsultationModal();
     });
 
-    // Close modals when clicking outside (only consultation modal remains)
+    // Close modal when clicking outside
     window.addEventListener("click", (event) => {
       const consultationModal = document.getElementById("consultationModal");
-      
-      if (event.target === consultationModal) {
+      if (consultationModal && event.target === consultationModal) {
         this.closeConsultationModal();
       }
     });
@@ -139,14 +140,14 @@ class UserProfileManager {
   openConsultationModal() {
     const consultationModal = document.getElementById("consultationModal");
     if (consultationModal) {
-      consultationModal.style.display = "block";
+      consultationModal.classList.add('show'); // Use class to show
     }
   }
 
   closeConsultationModal() {
     const consultationModal = document.getElementById("consultationModal");
     if (consultationModal) {
-      consultationModal.style.display = "none";
+      consultationModal.classList.remove('show'); // Use class to hide
     }
   }
 
@@ -217,6 +218,7 @@ class UserProfileManager {
       console.log("Sending consultation request:", consultationData);
 
       /*
+      // Uncomment and implement when you have the backend endpoint
       const response = await fetch(`${this.apiBaseUrl}/api/consultations/request`, {
         method: 'POST',
         headers: {
@@ -365,7 +367,6 @@ class UserProfileManager {
     // Convert FormData to object, handling multiple values
     for (let [key, value] of formData.entries()) {
       if (this.userData[key]) {
-        // Handle multiple files or checkboxes
         if (Array.isArray(this.userData[key])) {
           this.userData[key].push(value);
         } else {
@@ -396,7 +397,7 @@ class UserProfileManager {
       this.resetButton(submitBtn, originalBtnText);
       return;
     }
-    delete this.userData.customConsultationRate; // Remove the custom field if not "custom"
+    delete this.userData.customConsultationRate;
 
     // Handle custom investment interest
     if (
@@ -413,7 +414,7 @@ class UserProfileManager {
       this.resetButton(submitBtn, originalBtnText);
       return;
     }
-    delete this.userData.customInvestmentInterest; // Remove the custom field if not "others"
+    delete this.userData.customInvestmentInterest;
 
     // Prepare data for backend API (only basic auth fields for now)
     const backendData = {
@@ -429,7 +430,6 @@ class UserProfileManager {
       return;
     }
     if (!this.userData.userType) {
-      // Ensure userType is selected
       this.showMessage("⚠️ Please select your role", "error");
       this.resetButton(submitBtn, originalBtnText);
       return;
@@ -450,7 +450,6 @@ class UserProfileManager {
       return;
     }
 
-    // Email validation
     const emailRegex = /^\S+@\S+\.\S+$/;
     if (!emailRegex.test(backendData.email)) {
       this.showMessage("⚠️ Please enter a valid email address", "error");
@@ -459,7 +458,8 @@ class UserProfileManager {
     }
 
     try {
-      // Register user with backend
+      console.log("Sending registration data to backend:", backendData);
+
       const response = await fetch(`${this.apiBaseUrl}/api/auth/signup`, {
         method: "POST",
         headers: {
@@ -472,11 +472,9 @@ class UserProfileManager {
       const data = await response.json();
 
       if (response.ok && data.token) {
-        // Store auth data
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
 
-        // Save additional profile data locally
         this.saveData();
 
         this.showMessage(
@@ -484,15 +482,25 @@ class UserProfileManager {
           "success"
         );
 
-        // Show dashboard after a short delay
         setTimeout(() => {
           this.showDashboard();
         }, 1500);
       } else {
-        this.showMessage(
-          data.message || "Registration failed. Please try again.",
-          "error"
-        );
+        let errorMessage = "Registration failed. Please try again.";
+        if (data.message) {
+          errorMessage = data.message;
+        } else if (data.errors && Array.isArray(data.errors)) {
+          errorMessage = data.errors.join(", ");
+        }
+
+        if (data.missing) {
+            const missingFields = Object.keys(data.missing).filter(key => data.missing[key]);
+            if (missingFields.length > 0) {
+                errorMessage += ` (Missing: ${missingFields.join(", ")})`;
+            }
+        }
+
+        this.showMessage(`❌ ${errorMessage}`, "error");
         this.resetButton(submitBtn, originalBtnText);
       }
     } catch (error) {
@@ -634,7 +642,6 @@ class UserProfileManager {
 
     this.populateConsultationInfo(data);
 
-    // Profile image
     const dashProfileImage = document.getElementById("dashProfileImage");
     if (
       data.profileImage &&
@@ -648,7 +655,6 @@ class UserProfileManager {
       };
       reader.readAsDataURL(data.profileImage);
     } else if (dashProfileImage) {
-      // Hide if no image
       dashProfileImage.style.display = "none";
     }
 
@@ -691,7 +697,7 @@ class UserProfileManager {
       if (data.consultationRate === "free") {
         rate = "Free";
       } else if (data.consultationRate) {
-        rate = `$${data.consultationRate}/hour`; // Now directly use the value
+        rate = `$${data.consultationRate}/hour`;
       }
       rateElement.textContent = rate;
     }
@@ -870,21 +876,27 @@ class UserProfileManager {
     }
   }
 
-  // NEW: Check authentication status on every page load
   checkAuthStatus() {
     const token = localStorage.getItem('token');
-    // If not logged in AND not on sign-in or sign-up page, redirect to sign-in
-    if (!token && !window.location.pathname.includes('sign-in.html') && !window.location.pathname.includes('sign-up.html')) {
-      this.showMessage("You need to be signed in to access this page.", "error");
-      setTimeout(() => {
-        window.location.href = "sign-in.html";
-      }, 1500); // Give time for message to display
-    } else if (token && (window.location.pathname.includes('sign-in.html') || window.location.pathname.includes('sign-up.html'))) {
-        // If already logged in and on sign-in/sign-up page, redirect to dashboard
+    // Determine the current page
+    const currentPage = window.location.pathname.split('/').pop();
+
+    if (!token) {
+      // If not logged in and not on sign-in or sign-up, redirect to sign-in
+      if (currentPage !== 'sign-in.html' && currentPage !== 'sign-up.html' && currentPage !== 'index.html') {
+        this.showMessage("You need to be signed in to access this page.", "error");
+        setTimeout(() => {
+          window.location.href = "sign-in.html";
+        }, 1500);
+      }
+    } else {
+      // If logged in and on sign-in or sign-up, redirect to dashboard
+      if (currentPage === 'sign-in.html' || currentPage === 'sign-up.html') {
         this.showMessage("You are already logged in. Redirecting to dashboard.", "success");
         setTimeout(() => {
             window.location.href = "dashboard.html";
         }, 1500);
+      }
     }
   }
 
@@ -895,20 +907,16 @@ class UserProfileManager {
     localStorage.removeItem("profileImage");
     localStorage.removeItem("consultationRequests");
     
-    // Clear in-memory data
     this.userData = {};
 
     this.showMessage("You have been logged out successfully.", "success");
     setTimeout(() => {
       window.location.href = "sign-in.html";
-    }, 1000); // Redirect after a short delay
+    }, 1000);
   }
 }
 
 // Global helper functions (showMessage, resetButton, saveProfileImage, etc.)
-// These functions are outside the class but are called by class methods.
-// Ensure they are defined before the UserProfileManager is initialized.
-
 function showMessage(message, type) {
   const existingMessage = document.querySelector(".message-alert");
   if (existingMessage) {
@@ -1008,7 +1016,6 @@ window.addEventListener("load", function () {
   }
 });
 
-// Add CSS for animations and styling (consider moving to a dedicated CSS file)
 const style = document.createElement("style");
 style.textContent = `
 @keyframes slideIn {
@@ -1058,7 +1065,6 @@ button[type="submit"]:disabled {
     border-radius: 4px;
 }
 
-/* Modal Styles - Only consultation modal related styles remain */
 .modal {
     position: fixed;
     z-index: 1000;
@@ -1109,9 +1115,7 @@ button[type="submit"]:disabled {
     color: #000;
 }
 
-/* Removed: Chat Specific Styles */
-
-.send-btn, .schedule-btn, .edit-btn, .submit-btn, .logout-btn { /* Added .logout-btn */
+.send-btn, .schedule-btn, .edit-btn, .submit-btn, .logout-btn {
     padding: 10px 20px;
     background-color: #3b82f6;
     color: white;
@@ -1122,11 +1126,10 @@ button[type="submit"]:disabled {
     transition: background-color 0.2s ease-in-out;
 }
 
-.send-btn:hover, .schedule-btn:hover, .edit-btn:hover, .submit-btn:hover, .logout-btn:hover { /* Added .logout-btn */
+.send-btn:hover, .schedule-btn:hover, .edit-btn:hover, .submit-btn:hover, .logout-btn:hover {
     background-color: #2563eb;
 }
 
-/* Consultation Form Styles */
 .consultation-form {
     padding: 20px;
     background-color: #fff;
@@ -1154,7 +1157,6 @@ button[type="submit"]:disabled {
     box-sizing: border-box;
 }
 
-/* Checkbox Group for Days/Methods */
 .checkbox-group {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -1183,13 +1185,11 @@ button[type="submit"]:disabled {
     accent-color: #3b82f6;
 }
 
-/* Animation for modals */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(-20px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Form validation feedback styles */
 .form-group input.error,
 .form-group select.error,
 .form-group textarea.error {
@@ -1204,7 +1204,6 @@ button[type="submit"]:disabled {
     box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
 }
 
-/* General form input focus */
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
@@ -1213,7 +1212,6 @@ button[type="submit"]:disabled {
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
-/* Styles for the main container */
 .container {
     max-width: 800px;
     margin: 40px auto;
@@ -1223,7 +1221,6 @@ button[type="submit"]:disabled {
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
-/* Section styling */
 .section {
     background: #f8fafc;
     border: 1px solid #e2e8f0;
@@ -1240,7 +1237,6 @@ button[type="submit"]:disabled {
     padding-bottom: 10px;
 }
 
-/* Form row for side-by-side inputs */
 .form-row {
     display: grid;
     grid-template-columns: 1fr;
@@ -1253,7 +1249,6 @@ button[type="submit"]:disabled {
     }
 }
 
-/* Image preview styles */
 .image-preview, .file-preview, .video-preview {
     margin-top: 10px;
     border: 1px dashed #d1d5db;
@@ -1283,7 +1278,6 @@ button[type="submit"]:disabled {
     margin-top: 10px;
 }
 
-/* Dashboard specific styles */
 .dashboard-container {
     background: #fff;
     border-radius: 12px;
@@ -1394,7 +1388,6 @@ button[type="submit"]:disabled {
     margin-top: 10px;
 }
 
-/* Header styles */
 .header {
     background-color: #fff;
     padding: 15px 0;
@@ -1415,7 +1408,6 @@ button[type="submit"]:disabled {
     height: 40px;
 }
 
-/* Link styles */
 .login-link, .signup-link {
     text-align: center;
     margin-top: 20px;
@@ -1434,7 +1426,6 @@ button[type="submit"]:disabled {
 `;
 document.head.appendChild(style);
 
-// Initialize the application
 document.addEventListener("DOMContentLoaded", () => {
   new UserProfileManager();
 });
