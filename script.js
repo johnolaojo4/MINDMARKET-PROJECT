@@ -500,7 +500,7 @@ class UserProfileManager {
     try {
       console.log("Sending registration data to backend:", backendData);
 
-      const response = await fetch(`${this.apiBaseUrl}/api/auth/signup`, {
+      const response = await fetch(`${this.apiBaseUrl}/api/auth/sign-up`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -3,415 +3,529 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>User Registration Form</title>
-    <link rel="stylesheet" href="styles.css" />
+    <title>Sign-In</title>
+    <link rel="icon" href="images/favicon-32x32.png" type="image/png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Inter", sans-serif;
+      }
+
+      body {
+        background: linear-gradient(135deg, #fdfdfd 0%, #e8e8e8 100%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+      }
+
+      .logo {
+        margin-bottom: 20px;
+      }
+
+      .logo img {
+        width: 120px;
+        transition: transform 0.3s ease;
+      }
+
+      .logo img:hover {
+        transform: scale(1.1);
+      }
+
+      .container {
+        background: #fff;
+        padding: 40px 30px;
+        border-radius: 16px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 420px;
+        text-align: center;
+        animation: fadeIn 0.8s ease-in-out;
+      }
+
+      .signin-title {
+        font-size: 24px;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 25px;
+      }
+
+      .form-group {
+        text-align: left;
+        margin-bottom: 20px;
+        position: relative;
+      }
+
+      .form-group label {
+        font-size: 14px;
+        color: #555;
+        margin-bottom: 6px;
+        display: block;
+        font-weight: 600;
+      }
+
+      .form-group input {
+        width: 100%;
+        padding: 12px;
+        border: 1.5px solid #ccc;
+        border-radius: 10px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+      }
+
+      .form-group input:focus {
+        border-color: #2575fc;
+        outline: none;
+        box-shadow: 0 0 5px rgba(37, 117, 252, 0.4);
+      }
+
+      .password-toggle {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        color: #666;
+        font-size: 16px;
+        transition: color 0.3s ease;
+      }
+
+      .password-toggle:hover {
+        color: #2575fc;
+      }
+
+      .forgot-password {
+        text-align: right;
+        margin-bottom: 20px;
+      }
+
+      .forgot-password a {
+        color: #2575fc;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 500;
+        transition: color 0.3s ease;
+      }
+
+      .forgot-password a:hover {
+        color: #1e63d9;
+      }
+
+      .signin-btn {
+        display: inline-block;
+        width: 100%;
+        padding: 14px;
+        background: #2575fc;
+        color: #fff;
+        font-weight: 600;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        transition:
+          background 0.3s ease,
+          transform 0.2s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .signin-btn:hover {
+        background: #1e63d9;
+        transform: translateY(-2px);
+      }
+
+      .signin-btn:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .signin-btn .loading-spinner {
+        display: none;
+        width: 20px;
+        height: 20px;
+        border: 2px solid #ffffff;
+        border-top: 2px solid transparent;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-right: 8px;
+      }
+
+      .signin-btn.loading .loading-spinner {
+        display: inline-block;
+      }
+
+      .signup-link {
+        margin-top: 20px;
+        font-size: 14px;
+        color: #555;
+      }
+
+      .signup-link a {
+        color: #2575fc;
+        font-weight: 600;
+        text-decoration: none;
+        transition: color 0.3s ease;
+      }
+
+      .signup-link a:hover {
+        color: #6a11cb;
+      }
+
+      /* Message box */
+      .message {
+        margin-top: 15px;
+        padding: 12px;
+        border-radius: 8px;
+        font-size: 14px;
+        display: none;
+        animation: slideIn 0.3s ease-in-out;
+      }
+
+      .message.error {
+        background: #ffe5e5;
+        color: #d9534f;
+        border: 1px solid #f5c2c2;
+      }
+
+      .message.success {
+        background: #e6f9ed;
+        color: #28a745;
+        border: 1px solid #b4e2c5;
+      }
+
+      /* Remember me checkbox */
+      .remember-me {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+      }
+
+      .checkbox-group {
+        display: flex;
+        align-items: center;
+      }
+
+      .checkbox-group input[type="checkbox"] {
+        margin-right: 8px;
+        transform: scale(1.1);
+      }
+
+      .checkbox-group label {
+        font-size: 13px;
+        color: #555;
+        font-weight: 500;
+        margin: 0;
+      }
+
+      /* Animations */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(15px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+
+      /* Responsive design */
+      @media (max-width: 480px) {
+        .container {
+          margin: 20px;
+          padding: 30px 20px;
+        }
+        
+        .logo img {
+          width: 100px;
+        }
+      }
+    </style>
   </head>
   <body>
-    <header class="header">
-      <div class="header-container">
-        <a href="./index.html" class="logo-link">
-          <img
-            src="./images/BlackLogo.svg"
-            alt="MindMarket Logo"
-            class="logo"
-          />
-        </a>
-      </div>
-    </header>
+    <div class="logo">
+      <a href="index.html">
+        <img src="images/MMlogo2.svg" alt="black MMlogo" />
+      </a>
+    </div>
 
     <div class="container">
-      <!-- Registration Form -->
-      <div id="registrationForm" class="form-container">
-        <h1>Create Your Profile</h1>
-
-        <form id="userForm">
-          <!-- User Type Selection -->
-          <div class="form-group">
-            <label for="userType">What is your role?</label>
-            <select id="userType" name="userType" required>
-              <option value="">Select your role</option>
-              <option value="investor">Investor</option>
-              <option value="hirer">Hirer of Skills</option>
-              <option value="skilled-worker">Skilled Worker</option>
-              <option value="idea-pitcher">Idea Pitcher</option>
-            </select>
-          </div>
-
-          <!-- Personal Information -->
-          <div class="section">
-            <h2>Personal Information</h2>
-
-            <div class="form-group">
-              <label for="profileImage">Profile Picture:</label>
-              <input
-                type="file"
-                id="profileImage"
-                name="profileImage"
-                accept="image/*"
-              />
-              <div id="profilePreview" class="image-preview"></div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label for="firstName">First Name:</label>
-                <input type="text" id="firstName" name="firstName" required />
-              </div>
-              <div class="form-group">
-                <label for="lastName">Last Name:</label>
-                <input type="text" id="lastName" name="lastName" required />
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label for="email">Email:</label>
-              <input type="email" id="email" name="email" required />
-            </div>
-            
-            <!-- NEW: Password Field Added -->
-            <div class="form-group">
-              <label for="password">Password:</label>
-              <input type="password" id="password" name="password" required />
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label for="phone">Phone Number:</label>
-                <input type="tel" id="phone" name="phone" required />
-              </div>
-              <div class="form-group">
-                <label for="location">Location:</label>
-                <input type="text" id="location" name="location" required />
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label for="bio">Bio:</label>
-              <textarea
-                id="bio"
-                name="bio"
-                rows="4"
-                placeholder="Tell us about yourself..."
-              ></textarea>
-            </div>
-          </div>
-
-          <!-- Dynamic Sections Based on User Type -->
-
-          <!-- Investor Section -->
-          <div
-            id="investorSection"
-            class="section dynamic-section"
-            style="display: none"
-          >
-            <h2>Investment Information</h2>
-            <div class="form-group">
-              <label for="investmentRange">Investment Range (USD):</label>
-              <select id="investmentRange" name="investmentRange">
-                <option value="">Select range</option>
-                <option value="1000-10000">USD 1,000 - USD 10,000</option>
-                <option value="10000-50000">USD 10,000 - USD 50,000</option>
-                <option value="50000-100000">USD 50,000 - USD 100,000</option>
-                <option value="100000+">USD 100,000+</option>
-              </select>
-            </div>
-
-            <!-- Investment Interests Dropdown -->
-            <div class="form-group">
-              <label for="investmentInterests">Investment Interests:</label>
-              <select id="investmentInterests" name="investmentInterests">
-                <option value="">Select your investment interest</option>
-                <option value="agriculture">Agriculture & Food</option>
-                <option value="education">Education & E-learning</option>
-                <option value="fintech">Financial Technology (FinTech)</option>
-                <option value="healthcare">Healthcare & Medical</option>
-                <option value="technology">Technology & Software</option>
-                <option value="renewable-energy">Renewable Energy</option>
-                <option value="real-estate">Real Estate</option>
-                <option value="retail-ecommerce">Retail & E-commerce</option>
-                <option value="manufacturing">
-                  Manufacturing & Industrial
-                </option>
-                <option value="transportation">
-                  Transportation & Logistics
-                </option>
-                <option value="entertainment">Entertainment & Media</option>
-                <option value="tourism-hospitality">
-                  Tourism & Hospitality
-                </option>
-                <option value="blockchain-crypto">
-                  Blockchain & Cryptocurrency
-                </option>
-                <option value="artificial-intelligence">
-                  Artificial Intelligence
-                </option>
-                <option value="biotechnology">Biotechnology</option>
-                <option value="clean-tech">Clean Technology</option>
-                <option value="social-impact">
-                  Social Impact & Non-profit
-                </option>
-                <option value="sports-fitness">Sports & Fitness</option>
-                <option value="fashion-beauty">Fashion & Beauty</option>
-                <option value="others">Others (Please specify)</option>
-              </select>
-            </div>
-
-            <!-- Custom Investment Interest Input (Hidden by default) -->
-            <div
-              class="form-group"
-              id="customInterestGroup"
-              style="display: none"
-            >
-              <label for="customInvestmentInterest"
-                >Please specify your investment interest:</label
-              >
-              <input
-                type="text"
-                id="customInvestmentInterest"
-                name="customInvestmentInterest"
-                placeholder="Enter your specific investment interest..."
-              />
-            </div>
-
-            <div class="form-group">
-              <label for="investmentDescription"
-                >Investment Focus Description:</label
-              >
-              <textarea
-                id="investmentDescription"
-                name="investmentDescription"
-                rows="3"
-                placeholder="Describe what specific aspects of this sector interest you..."
-              ></textarea>
-            </div>
-
-            <div class="form-group">
-              <label for="experience">Investment Experience:</label>
-              <textarea
-                id="experience"
-                name="experience"
-                rows="3"
-                placeholder="Describe your investment experience..."
-              ></textarea>
-            </div>
-
-            <!-- Investment Preferences -->
-            <div class="form-group">
-              <label for="investmentStage">Preferred Investment Stage:</label>
-              <select id="investmentStage" name="investmentStage">
-                <option value="">Select stage</option>
-                <option value="seed">Seed Stage</option>
-                <option value="early-stage">Early Stage</option>
-                <option value="growth-stage">Growth Stage</option>
-                <option value="late-stage">Late Stage</option>
-                <option value="any-stage">Any Stage</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label for="riskTolerance">Risk Tolerance:</label>
-              <select id="riskTolerance" name="riskTolerance">
-                <option value="">Select risk tolerance</option>
-                <option value="conservative">Conservative</option>
-                <option value="moderate">Moderate</option>
-                <option value="aggressive">Aggressive</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- Hirer Section -->
-          <div
-            id="hirerSection"
-            class="section dynamic-section"
-            style="display: none"
-          >
-            <h2>Hiring Information</h2>
-            <div class="form-group">
-              <label for="companyName">Company Name:</label>
-              <input type="text" id="companyName" name="companyName" />
-            </div>
-            <div class="form-group">
-              <label for="industry">Industry:</label>
-              <input type="text" id="industry" name="industry" />
-            </div>
-            <div class="form-group">
-              <label for="skillsNeeded">Skills Needed:</label>
-              <textarea
-                id="skillsNeeded"
-                name="skillsNeeded"
-                rows="3"
-                placeholder="What skills are you looking to hire?"
-              ></textarea>
-            </div>
-            <div class="form-group">
-              <label for="budget">Budget Range:</label>
-              <select id="budget" name="budget">
-                <option value="">Select budget range</option>
-                <option value="500-2000">USD 500 - USD 2,000</option>
-                <option value="2000-5000">USD 2,000 - USD 5,000</option>
-                <option value="5000-10000">USD 5,000 - USD 10,000</option>
-                <option value="10000+">USD 10,000+</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- Skilled Worker Section -->
-          <div
-            id="skilledWorkerSection"
-            class="section dynamic-section"
-            style="display: none"
-          >
-            <h2>Skills & Portfolio</h2>
-            <div class="form-group">
-              <label for="skills">Skills:</label>
-              <input
-                type="text"
-                id="skills"
-                name="skills"
-                placeholder="e.g., Web Development, Graphic Design, Marketing"
-              />
-            </div>
-            <div class="form-group">
-              <label for="experience">Years of Experience:</label>
-              <select id="yearsExperience" name="yearsExperience">
-                <option value="">Select experience</option>
-                <option value="0-1">0-1 years</option>
-                <option value="1-3">1-3 years</option>
-                <option value="3-5">3-5 years</option>
-                <option value="5-10">5-10 years</option>
-                <option value="10+">10+ years</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="hourlyRate">Hourly Rate (NGN):</label>
-              <input
-                type="number"
-                id="hourlyRate"
-                name="hourlyRate"
-                min="1"
-                placeholder="25"
-              />
-            </div>
-            <div class="form-group">
-              <label for="portfolio">Portfolio</label>
-              <input
-                type="file"
-                id="portfolio"
-                name="portfolio"
-                multiple
-                accept=".pdf,.doc,.docx,.ppt,.pptx,.jpg,.jpeg,.png,.gif,.bmp,.*/"
-              />
-              <div id="portfolioPreview" class="image-preview-grid"></div>
-            </div>
-            <div class="form-group">
-              <label for="workDescription">Work Description:</label>
-              <textarea
-                id="workDescription"
-                name="workDescription"
-                rows="4"
-                placeholder="Describe your work and expertise..."
-              ></textarea>
-            </div>
-          </div>
-
-          <!-- Idea Pitcher Section -->
-          <div
-            id="ideaPitcherSection"
-            class="section dynamic-section"
-            style="display: none"
-          >
-            <h2>Your Idea</h2>
-            <div class="form-group">
-              <label for="ideaTitle">Idea Title:</label>
-              <input type="text" id="ideaTitle" name="ideaTitle" />
-            </div>
-            <div class="form-group">
-              <label for="ideaDescription">Idea Description:</label>
-              <textarea
-                id="ideaDescription"
-                name="ideaDescription"
-                rows="5"
-                placeholder="Describe your idea in detail..."
-              ></textarea>
-            </div>
-            <div class="form-group">
-              <label for="targetMarket">Target Market:</label>
-              <input
-                type="text"
-                id="targetMarket"
-                name="targetMarket"
-                placeholder="Who is your target audience?"
-              />
-            </div>
-            <div class="form-group">
-              <label for="fundingNeeded">Funding Needed (USD):</label>
-              <input
-                type="number"
-                id="fundingNeeded"
-                name="fundingNeeded"
-                min="1"
-                placeholder="50000"
-              />
-            </div>
-            <div class="form-group">
-              <label for="ideaDocuments">Supporting Documents:</label>
-              <input
-                type="file"
-                id="ideaDocuments"
-                name="ideaDocuments"
-                multiple
-                accept=".pdf,.doc,.docx,.ppt,.pptx"
-              />
-              <div id="documentsPreview" class="file-preview"></div>
-            </div>
-            <div class="form-group">
-              <label for="ideaVideo">Pitch Video:</label>
-              <input
-                type="file"
-                id="ideaVideo"
-                name="ideaVideo"
-                accept="video/*"
-              />
-              <div id="videoPreview" class="video-preview"></div>
-            </div>
-          </div>
-
-          <button type="submit" class="submit-btn">Create Profile</button>
-        </form>
-      </div>
-
-      <!-- Dashboard -->
-      <div id="dashboard" class="dashboard-container" style="display: none">
-        <div class="dashboard-header">
-          <div class="profile-section">
-            <img
-              id="dashProfileImage"
-              src=""
-              alt="Profile"
-              class="profile-img"
-            />
-            <div class="profile-info">
-              <h1 id="dashName"></h1>
-              <p id="dashUserType" class="user-type"></p>
-              <p id="dashLocation"></p>
-            </div>
-          </div>
-          <button id="editProfile" class="edit-btn">Edit Profile</button>
+      <h1 class="signin-title">Welcome Back</h1>
+      <form id="signInForm">
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            placeholder="Enter your email"
+            required
+            autocomplete="email"
+          />
         </div>
 
-        <div class="dashboard-content">
-          <div class="info-card">
-            <h2>Contact Information</h2>
-            <p><strong>Email:</strong> <span id="dashEmail"></span></p>
-            <p><strong>Phone:</strong> <span id="dashPhone"></span></p>
-            <p><strong>Bio:</strong> <span id="dashBio"></span></p>
-          </div>
-
-          <div id="dashboardDynamicContent"></div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            placeholder="Enter your password"
+            required
+            autocomplete="current-password"
+          />
+          <i class="fas fa-eye password-toggle" id="togglePassword"></i>
         </div>
+
+        <div class="remember-me">
+          <div class="checkbox-group">
+            <input type="checkbox" id="rememberMe" name="rememberMe" />
+            <label for="rememberMe">Remember me</label>
+          </div>
+          <div class="forgot-password">
+            <a href="#" id="forgotPasswordLink">Forgot Password?</a>
+          </div>
+        </div>
+
+        <button type="submit" class="signin-btn" id="signinButton">
+          <div class="loading-spinner"></div>
+          <span class="button-text">Sign In</span>
+        </button>
+      </form>
+
+      <!-- Message placeholder -->
+      <div id="messageBox" class="message"></div>
+
+      <div class="signup-link">
+        Don't have an account? <a href="sign-up.html">Sign Up</a>
       </div>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+      class SignInManager {
+        constructor() {
+          this.form = document.getElementById("signInForm");
+          this.messageBox = document.getElementById("messageBox");
+          this.signinButton = document.getElementById("signinButton");
+          this.togglePassword = document.getElementById("togglePassword");
+          this.passwordField = document.getElementById("password");
+          this.forgotPasswordLink = document.getElementById("forgotPasswordLink");
+          this.rememberMeCheckbox = document.getElementById("rememberMe");
+          
+          this.apiBaseUrl = "https://mind-market-api.onrender.com";
+          this.init();
+        }
+
+        init() {
+          this.bindEvents();
+          this.loadRememberedEmail();
+        }
+
+        bindEvents() {
+          if (this.form) {
+            this.form.addEventListener("submit", (e) => this.handleSignIn(e));
+          }
+
+          if (this.togglePassword) {
+            this.togglePassword.addEventListener("click", () => this.togglePasswordVisibility());
+          }
+
+          if (this.forgotPasswordLink) {
+            this.forgotPasswordLink.addEventListener("click", (e) => this.handleForgotPassword(e));
+          }
+
+          // Auto-hide messages after 5 seconds
+          if (this.messageBox) {
+            this.messageBox.addEventListener("animationend", () => {
+              setTimeout(() => {
+                if (this.messageBox.style.display === "block") {
+                  this.hideMessage();
+                }
+              }, 5000);
+            });
+          }
+        }
+
+        loadRememberedEmail() {
+          const rememberedEmail = localStorage.getItem("rememberedEmail");
+          if (rememberedEmail) {
+            document.getElementById("email").value = rememberedEmail;
+            this.rememberMeCheckbox.checked = true;
+          }
+        }
+
+        togglePasswordVisibility() {
+          const isPassword = this.passwordField.type === "password";
+          this.passwordField.type = isPassword ? "text" : "password";
+          this.togglePassword.classList.toggle("fa-eye");
+          this.togglePassword.classList.toggle("fa-eye-slash");
+        }
+
+        showMessage(msg, type) {
+          this.messageBox.textContent = msg;
+          this.messageBox.className = `message ${type}`;
+          this.messageBox.style.display = "block";
+        }
+
+        hideMessage() {
+          this.messageBox.style.display = "none";
+        }
+
+        setLoadingState(isLoading) {
+          this.signinButton.disabled = isLoading;
+          this.signinButton.classList.toggle("loading", isLoading);
+          
+          const buttonText = this.signinButton.querySelector(".button-text");
+          if (buttonText) {
+            buttonText.textContent = isLoading ? "Signing In..." : "Sign In";
+          }
+        }
+
+        handleRememberMe(email) {
+          if (this.rememberMeCheckbox.checked) {
+            localStorage.setItem("rememberedEmail", email);
+          } else {
+            localStorage.removeItem("rememberedEmail");
+          }
+        }
+
+        async handleSignIn(e) {
+          e.preventDefault();
+          this.hideMessage();
+
+          const email = document.getElementById("email").value.trim();
+          const password = document.getElementById("password").value;
+
+          // Basic validation
+          if (!email || !password) {
+            this.showMessage("Please fill in all fields.", "error");
+            return;
+          }
+
+          if (!this.isValidEmail(email)) {
+            this.showMessage("Please enter a valid email address.", "error");
+            return;
+          }
+
+          this.setLoadingState(true);
+
+          try {
+            const response = await fetch(`${this.apiBaseUrl}/api/auth/signin`, {
+              method: "POST",
+              headers: { 
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+              },
+              body: JSON.stringify({ email, password }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+              // Store authentication data
+              localStorage.setItem("token", data.token);
+              if (data.user) {
+                localStorage.setItem("userData", JSON.stringify(data.user));
+              }
+
+              // Handle remember me
+              this.handleRememberMe(email);
+
+              this.showMessage("Login successful! Redirecting...", "success");
+
+              // Redirect after short delay
+              setTimeout(() => {
+                window.location.href = "dashboard.html";
+              }, 1500);
+            } else {
+              this.showMessage(data.message || "Login failed. Please check your credentials.", "error");
+            }
+          } catch (err) {
+            console.error("Sign-in error:", err);
+            this.showMessage("Unable to connect to server. Please try again later.", "error");
+          } finally {
+            this.setLoadingState(false);
+          }
+        }
+
+        handleForgotPassword(e) {
+          e.preventDefault();
+          const email = document.getElementById("email").value.trim();
+          
+          if (!email) {
+            this.showMessage("Please enter your email address first.", "error");
+            return;
+          }
+
+          if (!this.isValidEmail(email)) {
+            this.showMessage("Please enter a valid email address.", "error");
+            return;
+          }
+
+          // Here you would typically make an API call to request password reset
+          this.showMessage("Password reset instructions have been sent to your email.", "success");
+          
+          // For demo purposes, you might redirect to a password reset page
+          // window.location.href = `reset-password.html?email=${encodeURIComponent(email)}`;
+        }
+
+        isValidEmail(email) {
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          return emailRegex.test(email);
+        }
+      }
+
+      // Initialize when DOM is loaded
+      document.addEventListener("DOMContentLoaded", () => {
+        new SignInManager();
+      });
+
+      // Handle URL parameters (for pre-filling email/password from registration)
+      window.addEventListener("load", () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const email = urlParams.get("email");
+        const password = urlParams.get("password");
+        
+        if (email) {
+          document.getElementById("email").value = decodeURIComponent(email);
+        }
+        if (password) {
+          document.getElementById("password").value = decodeURIComponent(password);
+        }
+      });
+    </script>
   </body>
 </html>
