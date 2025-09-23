@@ -31,18 +31,18 @@
 
       <form id="userForm">
         <div class="form-group">
-          <label for="username">Username</label>
-          <input type="text" id="username" required />
+          <label for="name">Full Name</label>
+          <input type="text" id="name" name="name" required />
         </div>
 
         <div class="form-group">
           <label for="email">Email Address</label>
-          <input type="email" id="email" required />
+          <input type="email" id="email" name="email" required />
         </div>
 
         <div class="form-group">
           <label for="password">Password</label>
-          <input type="password" id="password" required />
+          <input type="password" id="password" name="password" required />
         </div>
 
         <button type="submit" class="create-account-btn">Sign Up</button>
@@ -62,12 +62,50 @@
         .addEventListener("submit", async function (e) {
           e.preventDefault();
 
+          // Show loading state
+          const submitBtn = this.querySelector('button[type="submit"]');
+          const originalBtnText = submitBtn.textContent;
+          submitBtn.textContent = "Creating Account...";
+          submitBtn.disabled = true;
+
           // Get form data
           const formData = new FormData(this);
           const userData = Object.fromEntries(formData.entries());
 
+          console.log("Form data collected:", userData); // Debug log
+
+          // Validate required fields
+          if (!userData.name || !userData.email || !userData.password) {
+            console.log("Missing fields:", {
+              name: !userData.name,
+              email: !userData.email,
+              password: !userData.password
+            });
+            
+            showMessage(
+              "⚠️ All fields are required. Please fill in your name, email, and password.",
+              "error"
+            );
+            resetButton(submitBtn, originalBtnText);
+            return;
+          }
+
+          if (userData.password.length < 6) {
+            showMessage("⚠️ Password must be at least 6 characters long", "error");
+            resetButton(submitBtn, originalBtnText);
+            return;
+          }
+
+          // Email validation
+          const emailRegex = /^\S+@\S+\.\S+$/;
+          if (!emailRegex.test(userData.email)) {
+            showMessage("⚠️ Please enter a valid email address", "error");
+            resetButton(submitBtn, originalBtnText);
+            return;
+          }
+
           try {
-            console.log("Sending data:", userData); // Debug log
+            console.log("Sending data to backend:", userData);
 
             const response = await fetch(
               "https://mind-market-api.onrender.com/api/auth/signup",
@@ -81,28 +119,204 @@
               }
             );
 
-            console.log("Response status:", response.status); // Debug log
+            console.log("Response status:", response.status);
 
             const data = await response.json();
-            console.log("Response data:", data); // Debug log
+            console.log("Response data:", data);
 
             if (response.ok && data.token) {
-              alert("Registration successful!");
+              showMessage(
+                "🎉 Registration successful! Welcome to MindMarket. Redirecting to your dashboard...",
+                "success"
+              );
+
               // Store token and user data
               localStorage.setItem("token", data.token);
               localStorage.setItem("user", JSON.stringify(data.user));
-              // Redirect to dashboard
-              window.location.href = "dashboard.html";
+
+              // Redirect to dashboard after showing success message
+              setTimeout(() => {
+                window.location.href = "dashboard.html";
+              }, 2000);
             } else {
-              alert(
-                "Registration failed: " + (data.message || "Unknown error")
-              );
+              // Handle specific error messages from backend
+              let errorMessage = "Registration failed. Please try again.";
+
+              if (data.message) {
+                errorMessage = data.message;
+              } else if (data.errors && Array.isArray(data.errors)) {
+                errorMessage = data.errors.join(", ");
+              }
+
+              // Show which fields are missing
+              if (data.missing) {
+                console.log("Backend says missing fields:", data.missing);
+                const missingFields = Object.keys(data.missing).filter(key => data.missing[key]);
+                errorMessage += ` Missing: ${missingFields.join(", ")}`;
+              }
+
+              showMessage("❌ " + errorMessage, "error");
+              resetButton(submitBtn, originalBtnText);
             }
           } catch (error) {
-            console.error("Fetch error:", error);
-            alert("Network error. Please check your internet connection.");
+            console.error("Network error:", error);
+
+            if (error.name === "TypeError" && error.message.includes("fetch")) {
+              showMessage(
+                "❌ Unable to connect to server. Please check your internet connection and try again.",
+                "error"
+              );
+            } else {
+              showMessage(
+                "❌ An unexpected error occurred. Please try again later.",
+                "error"
+              );
+            }
+
+            resetButton(submitBtn, originalBtnText);
           }
         });
+
+      // Helper function to show custom messages
+      function showMessage(message, type) {
+        // Remove any existing message
+        const existingMessage = document.querySelector(".message-alert");
+        if (existingMessage) {
+          existingMessage.remove();
+        }
+
+        // Create new message element
+        const messageDiv = document.createElement("div");
+        messageDiv.className = `message-alert ${type}`;
+        messageDiv.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span>${type === "success" ? "✅" : "⚠️"}</span>
+              <span>${message.replace(/^[⚠️❌🎉✅]\s*/, '')}</span>
+            </div>
+          `;
+
+        // Style the message
+        messageDiv.style.cssText = `
+            padding: 16px 20px;
+            margin: 20px 0;
+            border-radius: 12px;
+            font-weight: 500;
+            text-align: left;
+            position: relative;
+            animation: slideIn 0.3s ease-out;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            ${
+              type === "success"
+                ? `
+                  background-color: #ecfdf5;
+                  color: #065f46;
+                  border-color: #10b981;
+                  border: 1px solid #a7f3d0;
+                `
+                : `
+                  background-color: #fef2f2;
+                  color: #991b1b;
+                  border-color: #ef4444;
+                  border: 1px solid #fca5a5;
+                `
+            }
+          `;
+
+        // Insert message before the form
+        const form = document.getElementById("userForm");
+        if (form && form.parentNode) {
+          form.parentNode.insertBefore(messageDiv, form);
+        }
+
+        // Auto-remove messages after appropriate time
+        const removeTime = type === "success" ? 3000 : 7000;
+        setTimeout(() => {
+          if (messageDiv.parentNode) {
+            messageDiv.style.opacity = "0";
+            messageDiv.style.transform = "translateY(-10px)";
+            setTimeout(() => messageDiv.remove(), 300);
+          }
+        }, removeTime);
+
+        // Scroll to message
+        messageDiv.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
+
+      // Helper function to reset button state
+      function resetButton(button, originalText) {
+        button.textContent = originalText;
+        button.disabled = false;
+      }
+
+      // Add CSS animations
+      const style = document.createElement("style");
+      style.textContent = `
+          @keyframes slideIn {
+            from {
+              opacity: 0;
+              transform: translateY(-20px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+
+          .message-alert {
+            transition: all 0.3s ease;
+          }
+
+          .message-alert:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+          }
+
+          button[type="submit"]:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+          }
+
+          .form-group input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+          }
+
+          .form-group input.error {
+            border-color: #ef4444;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+          }
+
+          .form-group input.success {
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+          }
+        `;
+      document.head.appendChild(style);
+
+      // Add real-time validation feedback
+      document.querySelectorAll("input[required]").forEach((input) => {
+        input.addEventListener("blur", function () {
+          if (!this.value.trim()) {
+            this.classList.add("error");
+            this.classList.remove("success");
+          } else {
+            this.classList.remove("error");
+            this.classList.add("success");
+          }
+        });
+
+        input.addEventListener("input", function () {
+          if (this.value.trim()) {
+            this.classList.remove("error");
+            this.classList.add("success");
+          }
+        });
+      });
+
+      console.log("Registration form script loaded successfully");
     </script>
   </body>
 </html>
