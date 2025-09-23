@@ -409,7 +409,13 @@ class UserProfileManager {
     const submitBtn = form.querySelector('button[type="submit"]');
     const originalBtnText = submitBtn.textContent;
 
-    submitBtn.textContent = "Creating Profile...";
+    // Check if this is an edit (update) or new registration
+    const isEdit =
+      localStorage.getItem("token") && localStorage.getItem("userProfileData");
+
+    submitBtn.textContent = isEdit
+      ? "Updating Profile..."
+      : "Creating Profile...";
     submitBtn.disabled = true;
 
     const formData = new FormData(form);
@@ -432,6 +438,7 @@ class UserProfileManager {
       "communicationMethods"
     );
 
+    // Handle custom consultation rate
     if (
       this.userData.consultationRate === "custom" &&
       this.userData.customConsultationRate
@@ -447,6 +454,7 @@ class UserProfileManager {
     }
     delete this.userData.customConsultationRate;
 
+    // Handle custom investment interest
     if (
       this.userData.investmentInterests === "others" &&
       this.userData.customInvestmentInterest
@@ -463,12 +471,7 @@ class UserProfileManager {
     }
     delete this.userData.customInvestmentInterest;
 
-    const backendData = {
-      name: `${this.userData.firstName || ""} ${this.userData.lastName || ""}`.trim(),
-      email: this.userData.email,
-      password: this.userData.password,
-    };
-
+    // Validation
     if (!this.userData.firstName || !this.userData.lastName) {
       this.showMessage("⚠️ Please enter both first and last name", "error");
       this.resetButton(submitBtn, originalBtnText);
@@ -480,80 +483,111 @@ class UserProfileManager {
       return;
     }
 
-    if (!backendData.email || !backendData.password) {
-      this.showMessage("⚠️ Please fill in all required fields", "error");
-      this.resetButton(submitBtn, originalBtnText);
-      return;
-    }
-
-    if (backendData.password.length < 6) {
-      this.showMessage(
-        "⚠️ Password must be at least 6 characters long",
-        "error"
-      );
-      this.resetButton(submitBtn, originalBtnText);
-      return;
-    }
-
-    const emailRegex = /^\S+@\S+\.\S+$/;
-    if (!emailRegex.test(backendData.email)) {
-      this.showMessage("⚠️ Please enter a valid email address", "error");
-      this.resetButton(submitBtn, originalBtnText);
-      return;
-    }
-
     try {
-      console.log("Sending registration data to backend:", backendData);
+      if (isEdit) {
+        // Handle profile update
+        const response = await fetch(`${this.apiBaseUrl}/api/user/profile`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify({
+            ...this.userData,
+            profileCompleted: true,
+          }),
+        });
 
-      const response = await fetch(`${this.apiBaseUrl}/api/auth/sign-up`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify(backendData),
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.token) {
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify(data.user));
-
-        this.saveData();
-
-        this.showMessage(
-          "🎉 Registration successful! Welcome to your dashboard.",
-          "success"
-        );
-
-        setTimeout(() => {
-          this.showDashboard();
-        }, 1500);
-      } else {
-        let errorMessage = "Registration failed. Please try again.";
-        if (data.message) {
-          errorMessage = data.message;
-        } else if (data.errors && Array.isArray(data.errors)) {
-          errorMessage = data.errors.join(", ");
-        }
-
-        if (data.missing) {
-          const missingFields = Object.keys(data.missing).filter(
-            (key) => data.missing[key]
-          );
-          if (missingFields.length > 0) {
-            errorMessage += ` (Missing: ${missingFields.join(", ")})`;
+        if (response.ok) {
+          const updatedUser = await response.json();
+          if (updatedUser.user) {
+            localStorage.setItem("userData", JSON.stringify(updatedUser.user));
           }
+
+          this.saveData();
+          this.showMessage("🎉 Profile updated successfully!", "success");
+
+          setTimeout(() => {
+            this.showDashboard();
+          }, 1500);
+        } else {
+          throw new Error("Failed to update profile");
+        }
+      } else {
+        // Handle new registration (existing code)
+        const backendData = {
+          name: `${this.userData.firstName || ""} ${this.userData.lastName || ""}`.trim(),
+          email: this.userData.email,
+          password: this.userData.password,
+        };
+
+        if (!backendData.email || !backendData.password) {
+          this.showMessage("⚠️ Please fill in all required fields", "error");
+          this.resetButton(submitBtn, originalBtnText);
+          return;
         }
 
-        this.showMessage(`❌ ${errorMessage}`, "error");
-        this.resetButton(submitBtn, originalBtnText);
+        if (backendData.password.length < 6) {
+          this.showMessage(
+            "⚠️ Password must be at least 6 characters long",
+            "error"
+          );
+          this.resetButton(submitBtn, originalBtnText);
+          return;
+        }
+
+        const emailRegex = /^\S+@\S+\.\S+$/;
+        if (!emailRegex.test(backendData.email)) {
+          this.showMessage("⚠️ Please enter a valid email address", "error");
+          this.resetButton(submitBtn, originalBtnText);
+          return;
+        }
+
+        const response = await fetch(`${this.apiBaseUrl}/api/auth/sign-up`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify(backendData),
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.token) {
+          localStorage.setItem("token", data.token);
+          localStorage.setItem("user", JSON.stringify(data.user));
+
+          this.saveData();
+          this.showMessage(
+            "🎉 Registration successful! Welcome to your dashboard.",
+            "success"
+          );
+
+          setTimeout(() => {
+            this.showDashboard();
+          }, 1500);
+        } else {
+          let errorMessage = "Registration failed. Please try again.";
+          if (data.message) {
+            errorMessage = data.message;
+          } else if (data.errors && Array.isArray(data.errors)) {
+            errorMessage = data.errors.join(", ");
+          }
+
+          this.showMessage(`❌ ${errorMessage}`, "error");
+          this.resetButton(submitBtn, originalBtnText);
+        }
       }
     } catch (error) {
-      console.error("Registration error:", error);
+      console.error(
+        isEdit ? "Profile update error:" : "Registration error:",
+        error
+      );
       this.showMessage(
-        "❌ Network error. Please check your connection and try again.",
+        isEdit
+          ? "❌ Failed to update profile. Please try again."
+          : "❌ Network error. Please check your connection and try again.",
         "error"
       );
       this.resetButton(submitBtn, originalBtnText);
@@ -653,111 +687,130 @@ class UserProfileManager {
 
     if (registrationForm) registrationForm.style.display = "block";
     if (dashboard) dashboard.style.display = "none";
+
+    // Populate form with existing data for editing
+    this.populateFormForEditing();
   }
 
-  populateDashboard() {
+  populateFormForEditing() {
     const data = this.userData;
-    const user = JSON.parse(localStorage.getItem("user") || "{}");
 
-    const nameElement = document.getElementById("dashName");
-    if (nameElement) {
-      nameElement.textContent =
-        user.name || `${data.firstName || ""} ${data.lastName || ""}`;
-    }
+    // Populate basic fields
+    const fields = [
+      "firstName",
+      "lastName",
+      "email",
+      "phone",
+      "location",
+      "bio",
+      "userType",
+      "companyName",
+      "industry",
+      "skillsNeeded",
+      "budget",
+      "skills",
+      "yearsExperience",
+      "hourlyRate",
+      "workDescription",
+      "investmentRange",
+      "investmentInterests",
+      "investmentDescription",
+      "experience",
+      "investmentStage",
+      "riskTolerance",
+      "ideaTitle",
+      "ideaDescription",
+      "targetMarket",
+      "fundingNeeded",
+      "timezone",
+      "consultationStartTime",
+      "consultationEndTime",
+      "consultationRate",
+      "consultationNotes",
+    ];
 
-    const userTypeElement = document.getElementById("dashUserType");
-    if (userTypeElement) {
-      userTypeElement.textContent = this.formatUserType(data.userType);
-    }
-
-    const locationElement = document.getElementById("dashLocation");
-    if (locationElement) {
-      locationElement.textContent = data.location || "";
-    }
-
-    const emailElement = document.getElementById("dashEmail");
-    if (emailElement) {
-      emailElement.textContent = user.email || data.email || "";
-    }
-
-    const phoneElement = document.getElementById("dashPhone");
-    if (phoneElement) {
-      phoneElement.textContent = data.phone || "";
-    }
-
-    const bioElement = document.getElementById("dashBio");
-    if (bioElement) {
-      bioElement.textContent = data.bio || "";
-    }
-
-    this.populateConsultationInfo(data);
-
-    const dashProfileImage = document.getElementById("dashProfileImage");
-    if (
-      data.profileImage &&
-      data.profileImage instanceof File &&
-      dashProfileImage
-    ) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        dashProfileImage.src = e.target.result;
-        dashProfileImage.style.display = "block";
-      };
-      reader.readAsDataURL(data.profileImage);
-    } else if (dashProfileImage) {
-      dashProfileImage.style.display = "none";
-    }
-
-    this.populateDynamicContent(data);
-  }
-
-  populateConsultationInfo(data) {
-    const timezoneElement = document.getElementById("dashTimezone");
-    if (timezoneElement) {
-      timezoneElement.textContent = data.timezone || "Not specified";
-    }
-
-    const daysElement = document.getElementById("dashConsultationDays");
-    if (daysElement) {
-      const days = Array.isArray(data.consultationDays)
-        ? data.consultationDays.join(", ")
-        : "Not specified";
-      daysElement.textContent = days;
-    }
-
-    const hoursElement = document.getElementById("dashConsultationHours");
-    if (hoursElement) {
-      const startTime = data.consultationStartTime || "";
-      const endTime = data.consultationEndTime || "";
-      hoursElement.textContent =
-        startTime && endTime ? `${startTime} - ${endTime}` : "Not specified";
-    }
-
-    const methodsElement = document.getElementById("dashCommunicationMethods");
-    if (methodsElement) {
-      const methods = Array.isArray(data.communicationMethods)
-        ? data.communicationMethods.join(", ")
-        : "Not specified";
-      methodsElement.textContent = methods;
-    }
-
-    const rateElement = document.getElementById("dashConsultationRate");
-    if (rateElement) {
-      let rate = "Not specified";
-      if (data.consultationRate === "free") {
-        rate = "Free";
-      } else if (data.consultationRate) {
-        rate = `$${data.consultationRate}/hour`;
+    fields.forEach((fieldName) => {
+      const field = document.getElementById(fieldName);
+      if (field && data[fieldName]) {
+        field.value = data[fieldName];
       }
-      rateElement.textContent = rate;
+    });
+
+    // Handle user type selection and show relevant section
+    if (data.userType) {
+      const userTypeField = document.getElementById("userType");
+      if (userTypeField) {
+        userTypeField.value = data.userType;
+        this.showRelevantSection(data.userType);
+      }
     }
 
-    const notesElement = document.getElementById("dashConsultationNotes");
-    if (notesElement) {
-      if (data.consultationNotes) {
-        notesElement.innerHTML = `<p><strong>Notes:</strong> ${data.consultationNotes}</p>`;
-      } else {
-        notesElement.innerHTML = "";
+    // Handle checkboxes for consultation days
+    if (data.consultationDays && Array.isArray(data.consultationDays)) {
+      data.consultationDays.forEach((day) => {
+        const checkbox = document.querySelector(
+          `input[name="consultationDays"][value="${day}"]`
+        );
+        if (checkbox) {
+          checkbox.checked = true;
+        }
+      });
+    }
+
+    // Handle checkboxes for communication methods
+    if (data.communicationMethods && Array.isArray(data.communicationMethods)) {
+      data.communicationMethods.forEach((method) => {
+        const checkbox = document.querySelector(
+          `input[name="communicationMethods"][value="${method}"]`
+        );
+        if (checkbox) {
+          checkbox.checked = true;
+        }
+      });
+    }
+
+    // Handle custom consultation rate
+    if (
+      data.consultationRate &&
+      !["free", "25", "50", "75", "100"].includes(data.consultationRate)
+    ) {
+      const consultationRateSelect =
+        document.getElementById("consultationRate");
+      const customRateInput = document.getElementById("customConsultationRate");
+      const customRateGroup = document.getElementById("customRateGroup");
+
+      if (consultationRateSelect && customRateInput && customRateGroup) {
+        consultationRateSelect.value = "custom";
+        customRateInput.value = data.consultationRate;
+        customRateGroup.style.display = "block";
+      }
+    }
+
+    // Handle custom investment interest
+    if (
+      data.investmentInterests &&
+      !["technology", "healthcare", "finance", "education"].includes(
+        data.investmentInterests
+      )
+    ) {
+      const investmentInterestsSelect = document.getElementById(
+        "investmentInterests"
+      );
+      const customInterestInput = document.getElementById(
+        "customInvestmentInterest"
+      );
+      const customInterestGroup = document.getElementById(
+        "customInterestGroup"
+      );
+
+      if (
+        investmentInterestsSelect &&
+        customInterestInput &&
+        customInterestGroup
+      ) {
+        investmentInterestsSelect.value = "others";
+        customInterestInput.value = data.investmentInterests;
+        customInterestGroup.style.display = "block";
       }
     }
   }
@@ -920,9 +973,16 @@ class UserProfileManager {
     const user = localStorage.getItem("user");
     const profileData = localStorage.getItem("userProfileData");
 
-    if (token && user && profileData) {
-      this.userData = JSON.parse(profileData);
-      this.showDashboard();
+    if (token && user) {
+      if (profileData) {
+        this.userData = JSON.parse(profileData);
+      }
+
+      // Always show dashboard if we're on dashboard page and authenticated
+      const currentPage = window.location.pathname.split("/").pop();
+      if (currentPage === "dashboard.html") {
+        this.showDashboard();
+      }
     }
   }
 
@@ -954,8 +1014,12 @@ class UserProfileManager {
           window.location.href = "dashboard.html";
         }, 1500);
       } else if (currentPage === "dashboard.html") {
-        // If on dashboard and authenticated, ensure dashboard is shown and populated
-        this.showDashboard();
+        // Load saved data and show dashboard
+        this.loadSavedData();
+        this.initializeConsultationScheduling();
+      } else {
+        // For other pages, just load the data if available
+        this.loadSavedData();
       }
     }
   }
