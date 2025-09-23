@@ -779,6 +779,56 @@ h1 {
     font-size: 13px;
     padding: 6px 14px;
   }
+
+  .footer {
+    padding: 30px 15px 25px;
+  }
+
+  .footer-container {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    text-align: center;
+  }
+
+  .footer-logo {
+    justify-content: center;
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 15px;
+  }
+
+  .footer-section h3 {
+    font-size: 16px;
+    margin-bottom: 15px;
+  }
+
+  .footer-section a {
+    font-size: 14px;
+  }
+
+  .contact-info p {
+    font-size: 14px;
+  }
+
+  .social-icons {
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .social-icons img {
+    width: 24px;
+    height: 24px;
+  }
+
+  .footer-bottom {
+    margin-top: 25px;
+    padding-top: 20px;
+    font-size: 12px;
+  }
+}
+-left {
+  min-width: unset;
+  text-align: center;
 }
 
 body.menu-open {
