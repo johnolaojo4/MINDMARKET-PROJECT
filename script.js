@@ -9,19 +9,18 @@ class UserProfileManager {
    * Initializes the UserProfileManager by binding events and loading saved data.
    */
   init() {
-    this.bindEvents();
-    this.checkAuthStatus(); // NEW: Check auth status on every page load
-    this.loadSavedData(); // Load data only if authenticated
-    this.initializeConsultationScheduling();
+    this.checkAuthStatus(); // NEW: Check auth status first on every page load
+    this.bindEvents(); // Bind events after auth check, for relevant elements
+    // loadSavedData and initializeConsultationScheduling are called conditionally within checkAuthStatus
   }
 
   bindEvents() {
+    // These elements might not exist on all pages, so use optional chaining
     const userTypeSelect = document.getElementById("userType");
     const form = document.getElementById("userForm"); // This is the registration/edit form
     const editButton = document.getElementById("editProfile");
-    const logoutBtn = document.getElementById("logoutBtn"); // Get the logout button
+    const logoutBtn = document.getElementById("logoutBtn"); // Get the logout button (on dashboard)
 
-    // Event listeners for the registration/edit form (if visible)
     userTypeSelect?.addEventListener("change", (e) => {
       this.showRelevantSection(e.target.value);
     });
@@ -31,12 +30,11 @@ class UserProfileManager {
       this.handleFormSubmit();
     });
 
-    // Event listeners for dashboard elements (if visible)
     editButton?.addEventListener("click", () => {
       this.showForm(); // Show the registration form for editing
     });
 
-    logoutBtn?.addEventListener("click", () => { // Attach logout event listener
+    logoutBtn?.addEventListener("click", () => { // Attach logout event listener (on dashboard)
       this.logout();
     });
 
@@ -44,7 +42,64 @@ class UserProfileManager {
     this.setupFileHandlers();
     // Setup consultation handlers (relevant for registration/edit form and dashboard)
     this.setupConsultationHandlers();
+
+    // General form validation feedback setup
+    document.querySelectorAll("input[required], select[required], textarea[required]").forEach((input) => {
+      input.addEventListener("blur", function () {
+        if (!this.value.trim()) {
+          this.classList.add("error");
+          this.classList.remove("success");
+        } else {
+          this.classList.remove("error");
+          this.classList.add("success");
+        }
+      });
+
+      input.addEventListener("input", function () {
+        if (this.value.trim()) {
+          this.classList.remove("error");
+          this.classList.add("success");
+        }
+      });
+    });
+
+    // Clear error messages when user starts typing
+    document.addEventListener("input", (e) => {
+      const formElement = e.target.closest("#userForm") || e.target.closest("#signInForm");
+      if (formElement) {
+        const existingMessage = document.querySelector(".message-alert.error");
+        if (existingMessage) {
+          existingMessage.style.opacity = '0.5'; // Soften error message, not remove immediately
+        }
+      }
+    });
+
+    // Handle custom rate/interest display on page load if form is visible and values are set
+    this.handleInitialDynamicFormVisibility();
   }
+
+  handleInitialDynamicFormVisibility() {
+      const consultationRateSelect = document.getElementById('consultationRate');
+      const customRateGroup = document.getElementById('customRateGroup');
+      if (consultationRateSelect && customRateGroup) {
+          if (consultationRateSelect.value === 'custom') {
+              customRateGroup.style.display = 'block';
+          } else {
+              customRateGroup.style.display = 'none';
+          }
+      }
+
+      const investmentInterestsSelect = document.getElementById('investmentInterests');
+      const customInterestGroup = document.getElementById('customInterestGroup');
+      if (investmentInterestsSelect && customInterestGroup) {
+          if (investmentInterestsSelect.value === 'others') {
+              customInterestGroup.style.display = 'block';
+          } else {
+              customInterestGroup.style.display = 'none';
+          }
+      }
+  }
+
 
   setupFileHandlers() {
     const profileImageInput = document.getElementById("profileImage");
@@ -69,7 +124,6 @@ class UserProfileManager {
   }
 
   setupConsultationHandlers() {
-    // Custom consultation rate handler (on registration/edit form)
     const consultationRateSelect = document.getElementById("consultationRate");
     consultationRateSelect?.addEventListener("change", function () {
       const customRateGroup = document.getElementById("customRateGroup");
@@ -82,7 +136,6 @@ class UserProfileManager {
       }
     });
 
-    // Investment interest "others" handler (on registration/edit form)
     const investmentInterestsSelect = document.getElementById(
       "investmentInterests"
     );
@@ -99,19 +152,16 @@ class UserProfileManager {
       }
     });
 
-    // Schedule consultation button (on dashboard.html)
     const scheduleBtn = document.getElementById("scheduleConsultation");
     scheduleBtn?.addEventListener("click", () => {
       this.openConsultationModal();
     });
 
-    // Request consultation button (inside the modal)
     const requestBtn = document.getElementById("requestConsultation");
     requestBtn?.addEventListener("click", () => {
       this.handleConsultationRequest();
     });
 
-    // Modal close handler (for consultation modal)
     const closeConsultationModal = document.getElementById(
       "closeConsultationModal"
     );
@@ -120,7 +170,6 @@ class UserProfileManager {
       this.closeConsultationModal();
     });
 
-    // Close modal when clicking outside
     window.addEventListener("click", (event) => {
       const consultationModal = document.getElementById("consultationModal");
       if (consultationModal && event.target === consultationModal) {
@@ -140,14 +189,14 @@ class UserProfileManager {
   openConsultationModal() {
     const consultationModal = document.getElementById("consultationModal");
     if (consultationModal) {
-      consultationModal.classList.add('show'); // Use class to show
+      consultationModal.classList.add('show');
     }
   }
 
   closeConsultationModal() {
     const consultationModal = document.getElementById("consultationModal");
     if (consultationModal) {
-      consultationModal.classList.remove('show'); // Use class to hide
+      consultationModal.classList.remove('show');
     }
   }
 
@@ -200,7 +249,6 @@ class UserProfileManager {
 
     this.closeConsultationModal();
 
-    // Clear form
     if (document.getElementById("consultationDate"))
       document.getElementById("consultationDate").value = "";
     if (document.getElementById("consultationTime"))
@@ -218,7 +266,6 @@ class UserProfileManager {
       console.log("Sending consultation request:", consultationData);
 
       /*
-      // Uncomment and implement when you have the backend endpoint
       const response = await fetch(`${this.apiBaseUrl}/api/consultations/request`, {
         method: 'POST',
         headers: {
@@ -357,14 +404,12 @@ class UserProfileManager {
     const submitBtn = form.querySelector('button[type="submit"]');
     const originalBtnText = submitBtn.textContent;
 
-    // Show loading state
     submitBtn.textContent = "Creating Profile...";
     submitBtn.disabled = true;
 
     const formData = new FormData(form);
     this.userData = {};
 
-    // Convert FormData to object, handling multiple values
     for (let [key, value] of formData.entries()) {
       if (this.userData[key]) {
         if (Array.isArray(this.userData[key])) {
@@ -377,13 +422,11 @@ class UserProfileManager {
       }
     }
 
-    // Handle checkboxes specifically for consultation days and communication methods
     this.userData.consultationDays = formData.getAll("consultationDays");
     this.userData.communicationMethods = formData.getAll(
       "communicationMethods"
     );
 
-    // Handle custom consultation rate
     if (
       this.userData.consultationRate === "custom" &&
       this.userData.customConsultationRate
@@ -399,7 +442,6 @@ class UserProfileManager {
     }
     delete this.userData.customConsultationRate;
 
-    // Handle custom investment interest
     if (
       this.userData.investmentInterests === "others" &&
       this.userData.customInvestmentInterest
@@ -416,14 +458,12 @@ class UserProfileManager {
     }
     delete this.userData.customInvestmentInterest;
 
-    // Prepare data for backend API (only basic auth fields for now)
     const backendData = {
       name: `${this.userData.firstName || ""} ${this.userData.lastName || ""}`.trim(),
       email: this.userData.email,
       password: this.userData.password,
     };
 
-    // Enhanced validation
     if (!this.userData.firstName || !this.userData.lastName) {
       this.showMessage("⚠️ Please enter both first and last name", "error");
       this.resetButton(submitBtn, originalBtnText);
@@ -556,9 +596,8 @@ class UserProfileManager {
       }
     `;
 
-    // Determine where to insert the message: before userForm for registration, or at the top of the body for dashboard
-    let targetElement = document.getElementById("userForm"); // For sign-up/edit profile forms
-    if (!targetElement) { // If not on a form page, try to find a suitable place on the dashboard or body
+    let targetElement = document.getElementById("userForm");
+    if (!targetElement) { // If not on registration form, try to find a suitable place on the dashboard or body
       targetElement = document.querySelector(".dashboard-container") || document.body;
       if (targetElement.id === "dashboard") { // If dashboard container exists, insert at its beginning
           targetElement.insertBefore(messageDiv, targetElement.firstChild);
@@ -878,11 +917,9 @@ class UserProfileManager {
 
   checkAuthStatus() {
     const token = localStorage.getItem('token');
-    // Determine the current page
     const currentPage = window.location.pathname.split('/').pop();
 
     if (!token) {
-      // If not logged in and not on sign-in or sign-up, redirect to sign-in
       if (currentPage !== 'sign-in.html' && currentPage !== 'sign-up.html' && currentPage !== 'index.html') {
         this.showMessage("You need to be signed in to access this page.", "error");
         setTimeout(() => {
@@ -890,12 +927,14 @@ class UserProfileManager {
         }, 1500);
       }
     } else {
-      // If logged in and on sign-in or sign-up, redirect to dashboard
       if (currentPage === 'sign-in.html' || currentPage === 'sign-up.html') {
         this.showMessage("You are already logged in. Redirecting to dashboard.", "success");
         setTimeout(() => {
             window.location.href = "dashboard.html";
         }, 1500);
+      } else if (currentPage === 'dashboard.html') {
+          // If on dashboard and authenticated, ensure dashboard is shown and populated
+          this.showDashboard();
       }
     }
   }
@@ -916,7 +955,6 @@ class UserProfileManager {
   }
 }
 
-// Global helper functions (showMessage, resetButton, saveProfileImage, etc.)
 function showMessage(message, type) {
   const existingMessage = document.querySelector(".message-alert");
   if (existingMessage) {
@@ -960,16 +998,15 @@ function showMessage(message, type) {
     }
   `;
 
-  // Determine where to insert the message: before userForm for registration, or at the top of the body for dashboard
-  let targetElement = document.getElementById("userForm"); // For sign-up/edit profile forms
-  if (!targetElement) { // If not on a form page, try to find a suitable place on the dashboard or body
+  let targetElement = document.getElementById("userForm");
+  if (!targetElement) {
     targetElement = document.querySelector(".dashboard-container") || document.body;
-    if (targetElement.id === "dashboard") { // If dashboard container exists, insert at its beginning
+    if (targetElement.id === "dashboard") {
         targetElement.insertBefore(messageDiv, targetElement.firstChild);
-    } else { // Fallback to inserting at body beginning for general pages
+    } else {
         document.body.insertBefore(messageDiv, document.body.firstChild);
     }
-  } else { // Insert before the form on registration/edit pages
+  } else {
     targetElement.parentNode.insertBefore(messageDiv, targetElement);
   }
 
