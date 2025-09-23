@@ -1,1553 +1,838 @@
-class UserProfileManager {
-  constructor() {
-    this.userData = {};
-    this.apiBaseUrl = "https://mind-market-api.onrender.com";
-    this.init();
-  }
+let currentUserType = "";
+let profileData = {};
 
-  /**
-   * Initializes the UserProfileManager by binding events and loading saved data.
-   */
-  init() {
-    this.checkAuthStatus(); // NEW: Check auth status first on every page load
-    this.bindEvents(); // Bind events after auth check, for relevant elements
-    // loadSavedData and initializeConsultationScheduling are called conditionally within checkAuthStatus
-  }
-
-  bindEvents() {
-    // These elements might not exist on all pages, so use optional chaining
-    const userTypeSelect = document.getElementById("userType");
-    const form = document.getElementById("userForm"); // This is the registration/edit form
-    const editButton = document.getElementById("editProfile");
-    const logoutBtn = document.getElementById("logoutBtn"); // Get the logout button (on dashboard)
-
-    userTypeSelect?.addEventListener("change", (e) => {
-      this.showRelevantSection(e.target.value);
-    });
-
-    form?.addEventListener("submit", (e) => {
-      e.preventDefault();
-      this.handleFormSubmit();
-    });
-
-    editButton?.addEventListener("click", () => {
-      this.showForm(); // Show the registration form for editing
-    });
-
-    logoutBtn?.addEventListener("click", () => {
-      // Attach logout event listener (on dashboard)
-      this.logout();
-    });
-
-    // File input handlers (relevant for registration/edit form)
-    this.setupFileHandlers();
-    // Setup consultation handlers (relevant for registration/edit form and dashboard)
-    this.setupConsultationHandlers();
-
-    // General form validation feedback setup
-    document
-      .querySelectorAll("input[required], select[required], textarea[required]")
-      .forEach((input) => {
-        input.addEventListener("blur", function () {
-          if (!this.value.trim()) {
-            this.classList.add("error");
-            this.classList.remove("success");
-          } else {
-            this.classList.remove("error");
-            this.classList.add("success");
-          }
-        });
-
-        input.addEventListener("input", function () {
-          if (this.value.trim()) {
-            this.classList.remove("error");
-            this.classList.add("success");
-          }
-        });
-      });
-
-    // Clear error messages when user starts typing
-    document.addEventListener("input", (e) => {
-      const formElement =
-        e.target.closest("#userForm") || e.target.closest("#signInForm");
-      if (formElement) {
-        const existingMessage = document.querySelector(".message-alert.error");
-        if (existingMessage) {
-          existingMessage.style.opacity = "0.5"; // Soften error message, not remove immediately
-        }
-      }
-    });
-
-    // Handle custom rate/interest display on page load if form is visible and values are set
-    this.handleInitialDynamicFormVisibility();
-  }
-
-  handleInitialDynamicFormVisibility() {
-    const consultationRateSelect = document.getElementById("consultationRate");
-    const customRateGroup = document.getElementById("customRateGroup");
-    if (consultationRateSelect && customRateGroup) {
-      if (consultationRateSelect.value === "custom") {
-        customRateGroup.style.display = "block";
-      } else {
-        customRateGroup.style.display = "none";
-      }
-    }
-
-    const investmentInterestsSelect = document.getElementById(
-      "investmentInterests"
-    );
-    const customInterestGroup = document.getElementById("customInterestGroup");
-    if (investmentInterestsSelect && customInterestGroup) {
-      if (investmentInterestsSelect.value === "others") {
-        customInterestGroup.style.display = "block";
-      } else {
-        customInterestGroup.style.display = "none";
-      }
-    }
-  }
-
-  setupFileHandlers() {
-    const profileImageInput = document.getElementById("profileImage");
-    profileImageInput?.addEventListener("change", (e) => {
-      this.handleImagePreview(e, "profilePreview", false);
-    });
-
-    const portfolioInput = document.getElementById("portfolio");
-    portfolioInput?.addEventListener("change", (e) => {
-      this.handleImagePreview(e, "portfolioPreview", true);
-    });
-
-    const documentsInput = document.getElementById("ideaDocuments");
-    documentsInput?.addEventListener("change", (e) => {
-      this.handleDocumentPreview(e, "documentsPreview");
-    });
-
-    const videoInput = document.getElementById("ideaVideo");
-    videoInput?.addEventListener("change", (e) => {
-      this.handleVideoPreview(e, "videoPreview");
-    });
-  }
-
-  setupConsultationHandlers() {
-    const consultationRateSelect = document.getElementById("consultationRate");
-    consultationRateSelect?.addEventListener("change", function () {
-      const customRateGroup = document.getElementById("customRateGroup");
-      if (customRateGroup) {
-        if (this.value === "custom") {
-          customRateGroup.style.display = "block";
-        } else {
-          customRateGroup.style.display = "none";
-        }
-      }
-    });
-
-    const investmentInterestsSelect = document.getElementById(
-      "investmentInterests"
-    );
-    investmentInterestsSelect?.addEventListener("change", function () {
-      const customInterestGroup = document.getElementById(
-        "customInterestGroup"
-      );
-      if (customInterestGroup) {
-        if (this.value === "others") {
-          customInterestGroup.style.display = "block";
-        } else {
-          customInterestGroup.style.display = "none";
-        }
-      }
-    });
-
-    const scheduleBtn = document.getElementById("scheduleConsultation");
-    scheduleBtn?.addEventListener("click", () => {
-      this.openConsultationModal();
-    });
-
-    const requestBtn = document.getElementById("requestConsultation");
-    requestBtn?.addEventListener("click", () => {
-      this.handleConsultationRequest();
-    });
-
-    const closeConsultationModal = document.getElementById(
-      "closeConsultationModal"
-    );
-
-    closeConsultationModal?.addEventListener("click", () => {
-      this.closeConsultationModal();
-    });
-
-    window.addEventListener("click", (event) => {
-      const consultationModal = document.getElementById("consultationModal");
-      if (consultationModal && event.target === consultationModal) {
-        this.closeConsultationModal();
-      }
-    });
-  }
-
-  initializeConsultationScheduling() {
-    const consultationDateInput = document.getElementById("consultationDate");
-    if (consultationDateInput) {
-      const today = new Date().toISOString().split("T")[0];
-      consultationDateInput.min = today;
-    }
-  }
-
-  openConsultationModal() {
-    const consultationModal = document.getElementById("consultationModal");
-    if (consultationModal) {
-      consultationModal.classList.add("show");
-    }
-  }
-
-  closeConsultationModal() {
-    const consultationModal = document.getElementById("consultationModal");
-    if (consultationModal) {
-      consultationModal.classList.remove("show");
-    }
-  }
-
-  handleConsultationRequest() {
-    const date = document.getElementById("consultationDate")?.value;
-    const time = document.getElementById("consultationTime")?.value;
-    const duration = document.getElementById("consultationDuration")?.value;
-    const topic = document.getElementById("consultationTopic")?.value;
-    const customRateInput = document.getElementById("customConsultationRate");
-    const consultationRateSelect = document.getElementById("consultationRate");
-
-    if (!date || !time) {
-      this.showMessage(
-        "⚠️ Please select both date and time for the consultation.",
-        "error"
-      );
-      return;
-    }
-
-    let consultationRate = consultationRateSelect?.value;
-    if (consultationRate === "custom" && customRateInput?.value) {
-      consultationRate = customRateInput.value;
-    }
-
-    const consultationData = {
-      date,
-      time,
-      duration: parseInt(duration || "30"),
-      topic: topic || "General discussion",
-      rate: consultationRate,
-      requestedAt: new Date().toISOString(),
-      status: "pending",
+// Debounce function for auto-save
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
     };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
 
-    const existingRequests = JSON.parse(
-      localStorage.getItem("consultationRequests") || "[]"
-    );
-    existingRequests.push(consultationData);
-    localStorage.setItem(
-      "consultationRequests",
-      JSON.stringify(existingRequests)
-    );
-
-    this.sendConsultationRequest(consultationData);
-
-    this.showMessage(
-      `🎉 Consultation requested for ${date} at ${time} (${duration} minutes)\nTopic: ${consultationData.topic}`,
-      "success"
-    );
-
-    this.closeConsultationModal();
-
-    if (document.getElementById("consultationDate"))
-      document.getElementById("consultationDate").value = "";
-    if (document.getElementById("consultationTime"))
-      document.getElementById("consultationTime").value = "";
-    if (document.getElementById("consultationTopic"))
-      document.getElementById("consultationTopic").value = "";
-    if (consultationRateSelect) consultationRateSelect.value = "";
-    if (customRateInput) customRateInput.value = "";
-    const customRateGroup = document.getElementById("customRateGroup");
-    if (customRateGroup) customRateGroup.style.display = "none";
+// Create debounced auto-save
+const debouncedAutoSave = debounce(() => {
+  if (currentUserType) {
+    autoSaveDraft();
   }
+}, 2000);
 
-  async sendConsultationRequest(consultationData) {
+// Initialize the application
+document.addEventListener("DOMContentLoaded", function () {
+  initializeApp();
+});
+
+function initializeApp() {
+  // Check if user has existing profile data
+  const savedProfile = localStorage.getItem("mindmarketProfile");
+  if (savedProfile) {
     try {
-      console.log("Sending consultation request:", consultationData);
-
-      /*
-      const response = await fetch(`${this.apiBaseUrl}/api/consultations/request`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify(consultationData)
-      });
-
-      if (response.ok) {
-        console.log('Consultation request sent successfully');
-      } else {
-        const errorData = await response.json();
-        console.error('Failed to send consultation request:', errorData.message);
-        this.showMessage(`Failed to send consultation request: ${errorData.message}`, 'error');
-      }
-      */
-    } catch (error) {
-      console.error("Error sending consultation request:", error);
-      this.showMessage(
-        "Error sending consultation request. Please try again.",
-        "error"
-      );
-    }
-  }
-
-  showRelevantSection(userType) {
-    const sections = document.querySelectorAll(".dynamic-section");
-    sections.forEach((section) => {
-      section.style.display = "none";
-    });
-
-    const sectionMap = {
-      investor: "investorSection",
-      hirer: "hirerSection",
-      "skilled-worker": "skilledWorkerSection",
-      "idea-pitcher": "ideaPitcherSection",
-    };
-
-    const sectionId = sectionMap[userType];
-    if (sectionId) {
-      const section = document.getElementById(sectionId);
-      if (section) {
-        section.style.display = "block";
-      }
-    }
-  }
-
-  handleImagePreview(event, previewId, multiple = false) {
-    const files = event.target.files;
-    const preview = document.getElementById(previewId);
-
-    if (!preview) return;
-
-    if (!multiple) {
-      preview.innerHTML = "";
-    }
-
-    Array.from(files).forEach((file) => {
-      if (file.type.startsWith("image/")) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const img = document.createElement("img");
-          img.src = e.target.result;
-          img.style.width = "100px";
-          img.style.height = "100px";
-          img.style.objectFit = "cover";
-          img.style.borderRadius = "8px";
-          img.style.border = "2px solid #ddd";
-          img.style.margin = "5px";
-          preview.appendChild(img);
-        };
-        reader.readAsDataURL(file);
-      }
-    });
-  }
-
-  handleDocumentPreview(event, previewId) {
-    const files = event.target.files;
-    const preview = document.getElementById(previewId);
-
-    if (!preview) return;
-
-    preview.innerHTML = "";
-
-    Array.from(files).forEach((file) => {
-      const fileItem = document.createElement("div");
-      fileItem.className = "file-item";
-      fileItem.style.cssText = `
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 8px;
-        background: #f9fafb;
-        border-radius: 6px;
-        margin: 4px 0;
-      `;
-      fileItem.innerHTML = `
-        <span>📄</span>
-        <span>${file.name}</span>
-        <span style="color: #6b7280;">(${this.formatFileSize(file.size)})</span>
-      `;
-      preview.appendChild(fileItem);
-    });
-  }
-
-  handleVideoPreview(event, previewId) {
-    const file = event.target.files[0];
-    const preview = document.getElementById(previewId);
-
-    if (!preview) return;
-
-    preview.innerHTML = "";
-
-    if (file && file.type.startsWith("video/")) {
-      const video = document.createElement("video");
-      video.src = URL.createObjectURL(file);
-      video.controls = true;
-      video.style.width = "100%";
-      video.style.maxWidth = "300px";
-      video.style.borderRadius = "8px";
-      preview.appendChild(video);
-    }
-  }
-
-  formatFileSize(bytes) {
-    if (bytes === 0) return "0 Bytes";
-    const k = 1024;
-    const sizes = ["Bytes", "KB", "MB", "GB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
-  }
-
-  async handleFormSubmit() {
-    const form = document.getElementById("userForm");
-    const submitBtn = form.querySelector('button[type="submit"]');
-    const originalBtnText = submitBtn.textContent;
-
-    // Check if this is an edit (update) or new registration
-    const isEdit =
-      localStorage.getItem("token") && localStorage.getItem("userProfileData");
-
-    submitBtn.textContent = isEdit
-      ? "Updating Profile..."
-      : "Creating Profile...";
-    submitBtn.disabled = true;
-
-    const formData = new FormData(form);
-    this.userData = {};
-
-    for (let [key, value] of formData.entries()) {
-      if (this.userData[key]) {
-        if (Array.isArray(this.userData[key])) {
-          this.userData[key].push(value);
-        } else {
-          this.userData[key] = [this.userData[key], value];
-        }
-      } else {
-        this.userData[key] = value;
-      }
-    }
-
-    this.userData.consultationDays = formData.getAll("consultationDays");
-    this.userData.communicationMethods = formData.getAll(
-      "communicationMethods"
-    );
-
-    // Handle custom consultation rate
-    if (
-      this.userData.consultationRate === "custom" &&
-      this.userData.customConsultationRate
-    ) {
-      this.userData.consultationRate = this.userData.customConsultationRate;
-    } else if (
-      this.userData.consultationRate === "custom" &&
-      !this.userData.customConsultationRate
-    ) {
-      this.showMessage("⚠️ Please specify a custom consultation rate", "error");
-      this.resetButton(submitBtn, originalBtnText);
-      return;
-    }
-    delete this.userData.customConsultationRate;
-
-    // Handle custom investment interest
-    if (
-      this.userData.investmentInterests === "others" &&
-      this.userData.customInvestmentInterest
-    ) {
-      this.userData.investmentInterests =
-        this.userData.customInvestmentInterest;
-    } else if (
-      this.userData.investmentInterests === "others" &&
-      !this.userData.customInvestmentInterest
-    ) {
-      this.showMessage("⚠️ Please specify your investment interest", "error");
-      this.resetButton(submitBtn, originalBtnText);
-      return;
-    }
-    delete this.userData.customInvestmentInterest;
-
-    // Validation
-    if (!this.userData.firstName || !this.userData.lastName) {
-      this.showMessage("⚠️ Please enter both first and last name", "error");
-      this.resetButton(submitBtn, originalBtnText);
-      return;
-    }
-    if (!this.userData.userType) {
-      this.showMessage("⚠️ Please select your role", "error");
-      this.resetButton(submitBtn, originalBtnText);
-      return;
-    }
-
-    try {
-      if (isEdit) {
-        // Handle profile update
-        const response = await fetch(`${this.apiBaseUrl}/api/user/profile`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-          body: JSON.stringify({
-            ...this.userData,
-            profileCompleted: true,
-          }),
-        });
-
-        if (response.ok) {
-          const updatedUser = await response.json();
-          if (updatedUser.user) {
-            localStorage.setItem("userData", JSON.stringify(updatedUser.user));
-          }
-
-          this.saveData();
-          this.showMessage("🎉 Profile updated successfully!", "success");
-
-          setTimeout(() => {
-            this.showDashboard();
-          }, 1500);
-        } else {
-          throw new Error("Failed to update profile");
-        }
-      } else {
-        // Handle new registration (existing code)
-        const backendData = {
-          name: `${this.userData.firstName || ""} ${this.userData.lastName || ""}`.trim(),
-          email: this.userData.email,
-          password: this.userData.password,
-        };
-
-        if (!backendData.email || !backendData.password) {
-          this.showMessage("⚠️ Please fill in all required fields", "error");
-          this.resetButton(submitBtn, originalBtnText);
-          return;
-        }
-
-        if (backendData.password.length < 6) {
-          this.showMessage(
-            "⚠️ Password must be at least 6 characters long",
-            "error"
-          );
-          this.resetButton(submitBtn, originalBtnText);
-          return;
-        }
-
-        const emailRegex = /^\S+@\S+\.\S+$/;
-        if (!emailRegex.test(backendData.email)) {
-          this.showMessage("⚠️ Please enter a valid email address", "error");
-          this.resetButton(submitBtn, originalBtnText);
-          return;
-        }
-
-        const response = await fetch(`${this.apiBaseUrl}/api/auth/sign-up`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: JSON.stringify(backendData),
-        });
-
-        const data = await response.json();
-
-        if (response.ok && data.token) {
-          localStorage.setItem("token", data.token);
-          localStorage.setItem("user", JSON.stringify(data.user));
-
-          this.saveData();
-          this.showMessage(
-            "🎉 Registration successful! Welcome to your dashboard.",
-            "success"
-          );
-
-          setTimeout(() => {
-            this.showDashboard();
-          }, 1500);
-        } else {
-          let errorMessage = "Registration failed. Please try again.";
-          if (data.message) {
-            errorMessage = data.message;
-          } else if (data.errors && Array.isArray(data.errors)) {
-            errorMessage = data.errors.join(", ");
-          }
-
-          this.showMessage(`❌ ${errorMessage}`, "error");
-          this.resetButton(submitBtn, originalBtnText);
-        }
+      profileData = JSON.parse(savedProfile);
+      if (profileData.userType) {
+        displayDashboard();
       }
     } catch (error) {
-      console.error(
-        isEdit ? "Profile update error:" : "Registration error:",
-        error
-      );
-      this.showMessage(
-        isEdit
-          ? "❌ Failed to update profile. Please try again."
-          : "❌ Network error. Please check your connection and try again.",
-        "error"
-      );
-      this.resetButton(submitBtn, originalBtnText);
+      console.error("Error loading saved profile:", error);
+      localStorage.removeItem("mindmarketProfile");
     }
   }
 
-  showMessage(message, type) {
-    const existingMessage = document.querySelector(".message-alert");
-    if (existingMessage) {
-      existingMessage.remove();
-    }
+  // Initialize file upload handlers
+  initializeFileUploads();
 
-    const messageDiv = document.createElement("div");
-    messageDiv.className = `message-alert ${type}`;
-    messageDiv.innerHTML = `
-      <div style="display: flex; align-items: center; gap: 8px;">
-        <span>${type === "success" ? "✅" : "⚠️"}</span>
-        <span>${message.replace(/^[⚠️❌🎉✅]\s*/, "")}</span>
-      </div>
-    `;
+  // Initialize form validation
+  initializeFormValidation();
 
-    messageDiv.style.cssText = `
-      padding: 16px 20px;
-      margin: 20px 0;
-      border-radius: 12px;
-      font-weight: 500;
-      text-align: left;
-      position: relative;
-      animation: slideIn 0.3s ease-out;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      border-left: 4px solid;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      ${
-        type === "success"
-          ? `
-            background-color: #ecfdf5; 
-            color: #065f46; 
-            border-color: #10b981;
-            border: 1px solid #a7f3d0;
-          `
-          : `
-            background-color: #fef2f2; 
-            color: #991b1b; 
-            border-color: #ef4444;
-            border: 1px solid #fca5a5;
-          `
-      }
-    `;
+  // Initialize keyboard shortcuts
+  initializeKeyboardShortcuts();
+}
 
-    let targetElement = document.getElementById("userForm");
-    if (!targetElement) {
-      // If not on registration form, try to find a suitable place on the dashboard or body
-      targetElement =
-        document.querySelector(".dashboard-container") || document.body;
-      if (targetElement.id === "dashboard") {
-        // If dashboard container exists, insert at its beginning
-        targetElement.insertBefore(messageDiv, targetElement.firstChild);
-      } else {
-        // Fallback to inserting at body beginning for general pages
-        document.body.insertBefore(messageDiv, document.body.firstChild);
-      }
-    } else {
-      // Insert before the form on registration/edit pages
-      targetElement.parentNode.insertBefore(messageDiv, targetElement);
-    }
+function selectUserType(type) {
+  currentUserType = type;
 
-    const removeTime = type === "success" ? 3000 : 7000;
-    setTimeout(() => {
-      if (messageDiv.parentNode) {
-        messageDiv.style.opacity = "0";
-        messageDiv.style.transform = "translateY(-10px)";
-        setTimeout(() => messageDiv.remove(), 300);
-      }
-    }, removeTime);
+  // Hide all forms
+  document.querySelectorAll(".form-container").forEach((form) => {
+    form.classList.remove("active");
+  });
 
-    messageDiv.scrollIntoView({ behavior: "smooth", block: "nearest" });
-  }
+  // Hide user type selection with fade out
+  const userTypeSelection = document.getElementById("userTypeSelection");
+  userTypeSelection.style.opacity = "0";
 
-  resetButton(button, originalText) {
-    button.textContent = originalText;
-    button.disabled = false;
-  }
+  setTimeout(() => {
+    userTypeSelection.style.display = "none";
 
-  showDashboard() {
-    const registrationForm = document.getElementById("registrationForm");
-    const dashboard = document.getElementById("dashboard");
-
-    if (registrationForm) registrationForm.style.display = "none";
-    if (dashboard) dashboard.style.display = "block";
-
-    this.populateDashboard();
-  }
-
-  showForm() {
-    const registrationForm = document.getElementById("registrationForm");
-    const dashboard = document.getElementById("dashboard");
-
-    if (registrationForm) registrationForm.style.display = "block";
-    if (dashboard) dashboard.style.display = "none";
-
-    // Populate form with existing data for editing
-    this.populateFormForEditing();
-  }
-
-  populateFormForEditing() {
-    const data = this.userData;
-
-    // Populate basic fields
-    const fields = [
-      "firstName",
-      "lastName",
-      "email",
-      "phone",
-      "location",
-      "bio",
-      "userType",
-      "companyName",
-      "industry",
-      "skillsNeeded",
-      "budget",
-      "skills",
-      "yearsExperience",
-      "hourlyRate",
-      "workDescription",
-      "investmentRange",
-      "investmentInterests",
-      "investmentDescription",
-      "experience",
-      "investmentStage",
-      "riskTolerance",
-      "ideaTitle",
-      "ideaDescription",
-      "targetMarket",
-      "fundingNeeded",
-      "timezone",
-      "consultationStartTime",
-      "consultationEndTime",
-      "consultationRate",
-      "consultationNotes",
-    ];
-
-    fields.forEach((fieldName) => {
-      const field = document.getElementById(fieldName);
-      if (field && data[fieldName]) {
-        field.value = data[fieldName];
-      }
-    });
-
-    // Handle user type selection and show relevant section
-    if (data.userType) {
-      const userTypeField = document.getElementById("userType");
-      if (userTypeField) {
-        userTypeField.value = data.userType;
-        this.showRelevantSection(data.userType);
-      }
-    }
-
-    // Handle checkboxes for consultation days
-    if (data.consultationDays && Array.isArray(data.consultationDays)) {
-      data.consultationDays.forEach((day) => {
-        const checkbox = document.querySelector(
-          `input[name="consultationDays"][value="${day}"]`
-        );
-        if (checkbox) {
-          checkbox.checked = true;
-        }
-      });
-    }
-
-    // Handle checkboxes for communication methods
-    if (data.communicationMethods && Array.isArray(data.communicationMethods)) {
-      data.communicationMethods.forEach((method) => {
-        const checkbox = document.querySelector(
-          `input[name="communicationMethods"][value="${method}"]`
-        );
-        if (checkbox) {
-          checkbox.checked = true;
-        }
-      });
-    }
-
-    // Handle custom consultation rate
-    if (
-      data.consultationRate &&
-      !["free", "25", "50", "75", "100"].includes(data.consultationRate)
-    ) {
-      const consultationRateSelect =
-        document.getElementById("consultationRate");
-      const customRateInput = document.getElementById("customConsultationRate");
-      const customRateGroup = document.getElementById("customRateGroup");
-
-      if (consultationRateSelect && customRateInput && customRateGroup) {
-        consultationRateSelect.value = "custom";
-        customRateInput.value = data.consultationRate;
-        customRateGroup.style.display = "block";
-      }
-    }
-
-    // Handle custom investment interest
-    if (
-      data.investmentInterests &&
-      !["technology", "healthcare", "finance", "education"].includes(
-        data.investmentInterests
-      )
-    ) {
-      const investmentInterestsSelect = document.getElementById(
-        "investmentInterests"
-      );
-      const customInterestInput = document.getElementById(
-        "customInvestmentInterest"
-      );
-      const customInterestGroup = document.getElementById(
-        "customInterestGroup"
-      );
-
-      if (
-        investmentInterestsSelect &&
-        customInterestInput &&
-        customInterestGroup
-      ) {
-        investmentInterestsSelect.value = "others";
-        customInterestInput.value = data.investmentInterests;
-        customInterestGroup.style.display = "block";
-      }
-    }
-  }
-
-  populateDynamicContent(data) {
-    const container = document.getElementById("dashboardDynamicContent");
-    if (!container) return;
-
-    container.innerHTML = "";
-
-    switch (data.userType) {
+    // Show selected form with animation - FIXED MAPPING
+    let formId;
+    switch (type) {
       case "investor":
-        this.createInvestorDashboard(container, data);
-        break;
-      case "hirer":
-        this.createHirerDashboard(container, data);
-        break;
-      case "skilled-worker":
-        this.createSkilledWorkerDashboard(container, data);
+        formId = "investorForm";
         break;
       case "idea-pitcher":
-        this.createIdeaPitcherDashboard(container, data);
+        formId = "ideaPitcherForm"; // Capital P
+        break;
+      case "skilled-worker":
+        formId = "skilledWorkerForm"; // Capital W
+        break;
+      case "hirer":
+        formId = "hirerForm";
         break;
     }
-  }
 
-  createInvestorDashboard(container, data) {
-    container.innerHTML = `
-      <div class="info-card">
-        <h2>Investment Profile</h2>
-        <p><strong>Investment Range:</strong> ${data.investmentRange || "Not specified"}</p>
-        <p><strong>Investment Interests:</strong> ${
-          data.investmentInterests || "Not specified"
-        }</p>
-        <p><strong>Investment Focus:</strong> ${data.investmentDescription || "Not specified"}</p>
-        <p><strong>Experience:</strong> ${data.experience || "Not specified"}</p>
-        <p><strong>Preferred Stage:</strong> ${data.investmentStage || "Not specified"}</p>
-        <p><strong>Risk Tolerance:</strong> ${data.riskTolerance || "Not specified"}</p>
-      </div>
-    `;
-  }
+    const targetForm = document.getElementById(formId);
+    if (targetForm) {
+      targetForm.classList.add("active");
+      targetForm.scrollIntoView({ behavior: "smooth", block: "start" });
 
-  createHirerDashboard(container, data) {
-    container.innerHTML = `
-      <div class="info-card">
-        <h2>Company Information</h2>
-        <p><strong>Company:</strong> ${data.companyName || "Not specified"}</p>
-        <p><strong>Industry:</strong> ${data.industry || "Not specified"}</p>
-        <p><strong>Skills Needed:</strong> ${data.skillsNeeded || "Not specified"}</p>
-        <p><strong>Budget Range:</strong> ${data.budget || "Not specified"}</p>
-      </div>
-    `;
-  }
+      // Load any draft data
+      loadDraftData(type);
+    }
+  }, 300);
 
-  createSkilledWorkerDashboard(container, data) {
-    let portfolioHtml = "";
-    if (data.portfolio) {
-      const portfolioFiles = Array.isArray(data.portfolio)
-        ? data.portfolio
-        : [data.portfolio];
-      portfolioHtml = '<div class="portfolio-grid">';
-      portfolioFiles.forEach((file) => {
-        if (file instanceof File && file.type.startsWith("image/")) {
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            portfolioHtml += `<div class="portfolio-item"><img src="${e.target.result}" alt="Portfolio"></div>`;
-          };
-          reader.readAsDataURL(file);
-        }
-      });
-      portfolioHtml += "</div>";
+  // Update button styles
+  document.querySelectorAll(".user-type-btn").forEach((btn) => {
+    btn.classList.remove("active");
+  });
+  event.target.classList.add("active");
+
+  // Show notification
+  showNotification(
+    "success",
+    "Profile type selected! Please fill out your information.",
+    "fas fa-check-circle"
+  );
+}
+
+function handleProfilePicUpload(event) {
+  const file = event.target.files[0];
+  if (file) {
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      showNotification(
+        "error",
+        "File size must be less than 5MB",
+        "fas fa-exclamation-triangle"
+      );
+      return;
     }
 
-    container.innerHTML = `
-      <div class="info-card">
-        <h2>Professional Profile</h2>
-        <p><strong>Skills:</strong> ${data.skills || "Not specified"}</p>
-        <p><strong>Experience:</strong> ${data.yearsExperience || "Not specified"}</p>
-        <p><strong>Hourly Rate:</strong> $${data.hourlyRate || "Not specified"}/hour</p>
-        <p><strong>Work Description:</strong> ${data.workDescription || "Not specified"}</p>
-        ${portfolioHtml}
-      </div>
-    `;
-  }
-
-  createIdeaPitcherDashboard(container, data) {
-    let documentsHtml = "";
-    let videoHtml = "";
-
-    if (data.ideaDocuments) {
-      const docs = Array.isArray(data.ideaDocuments)
-        ? data.ideaDocuments
-        : [data.ideaDocuments];
-      documentsHtml = '<div class="documents-list">';
-      docs.forEach((doc) => {
-        if (doc instanceof File) {
-          documentsHtml += `
-            <div class="document-item">
-              <span>📄</span>
-              <span>${doc.name}</span>
-            </div>
-          `;
-        }
-      });
-      documentsHtml += "</div>";
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      showNotification(
+        "error",
+        "Please select a valid image file",
+        "fas fa-exclamation-triangle"
+      );
+      return;
     }
 
-    if (data.ideaVideo && data.ideaVideo instanceof File) {
-      videoHtml = `
-        <div class="pitch-video">
-          <h3>Pitch Video</h3>
-          <video controls>
-            <source src="${URL.createObjectURL(data.ideaVideo)}" type="${
-              data.ideaVideo.type
-            }">
-            Your browser does not support the video tag.
-          </video>
-        </div>
-      `;
-    }
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      const profilePicDisplay = document.getElementById("profilePicDisplay");
+      profilePicDisplay.innerHTML = `<img src="${e.target.result}" alt="Profile Picture" class="profile-pic">`;
 
-    container.innerHTML = `
-      <div class="info-card">
-        <h2>Idea Details</h2>
-        <p><strong>Title:</strong> ${data.ideaTitle || "Not specified"}</p>
-        <p><strong>Description:</strong> ${data.ideaDescription || "Not specified"}</p>
-        <p><strong>Target Market:</strong> ${data.targetMarket || "Not specified"}</p>
-        <p><strong>Funding Needed:</strong> $${data.fundingNeeded || "Not specified"}</p>
-        ${documentsHtml}
-        ${videoHtml}
-      </div>
-    `;
-  }
+      // Store image data
+      profileData.profilePicture = e.target.result;
 
-  formatUserType(type) {
-    const typeMap = {
-      investor: "Investor",
-      hirer: "Hirer of Skills",
-      "skilled-worker": "Skilled Worker",
-      "idea-pitcher": "Idea Pitcher",
+      showNotification(
+        "success",
+        "Profile picture uploaded successfully!",
+        "fas fa-check-circle"
+      );
     };
-    return typeMap[type] || type;
+
+    reader.onerror = function () {
+      showNotification(
+        "error",
+        "Error uploading image. Please try again.",
+        "fas fa-exclamation-triangle"
+      );
+    };
+
+    reader.readAsDataURL(file);
+  }
+}
+
+function createProfile(userType) {
+  // Show loading state
+  const createBtn = document.querySelector(
+    ".form-container.active .create-profile-btn"
+  );
+
+  const originalContent = createBtn.innerHTML;
+  createBtn.innerHTML = '<div class="loading"></div> Creating Profile...';
+  createBtn.disabled = true;
+
+  // Validate form
+  if (!validateForm(userType)) {
+    createBtn.innerHTML = originalContent;
+    createBtn.disabled = false;
+    return;
   }
 
-  saveData() {
-    const dataToSave = { ...this.userData };
-    localStorage.setItem(
-      "userProfileData",
-      JSON.stringify(dataToSave, (key, value) => {
-        if (value instanceof File) {
-          return { name: value.name, size: value.size, type: value.type };
-        }
-        return value;
-      })
+  // Collect form data based on user type
+  let formData = {};
+
+  try {
+    switch (userType) {
+      case "investor":
+        formData = collectInvestorData();
+        break;
+      case "idea-pitcher":
+        formData = collectIdeaPitcherData();
+        break;
+      case "skilled-worker":
+        formData = collectSkilledWorkerData();
+        break;
+      case "hirer":
+        formData = collectHirerData();
+        break;
+    }
+
+    profileData = {
+      userType,
+      ...formData,
+      createdAt: new Date().toISOString(),
+      lastUpdated: new Date().toISOString(),
+    };
+
+    // Save to localStorage
+    localStorage.setItem("mindmarketProfile", JSON.stringify(profileData));
+
+    // Clear draft data
+    clearDraftData(userType);
+
+    // Simulate API call delay
+    setTimeout(() => {
+      createBtn.innerHTML =
+        '<i class="fas fa-check success-check"></i> Profile Created!';
+
+      setTimeout(() => {
+        displayDashboard();
+        showNotification(
+          "success",
+          "Profile created successfully!",
+          "fas fa-check-circle"
+        );
+      }, 1000);
+    }, 1500);
+  } catch (error) {
+    console.error("Error creating profile:", error);
+    createBtn.innerHTML = originalContent;
+    createBtn.disabled = false;
+    showNotification(
+      "error",
+      "Error creating profile. Please try again.",
+      "fas fa-exclamation-triangle"
     );
   }
+}
 
-  loadSavedData() {
-    const token = localStorage.getItem("token");
-    const user = localStorage.getItem("user");
-    const profileData = localStorage.getItem("userProfileData");
+function collectInvestorData() {
+  return {
+    name: document.getElementById("investorName").value,
+    email: document.getElementById("investorEmail").value,
+    phone: document.getElementById("investorPhone").value,
+    budget: document.getElementById("investorBudget").value,
+    investmentAreas: Array.from(
+      document.getElementById("investmentAreas").selectedOptions
+    ).map((o) => o.value),
+    consultationPreference: document.getElementById("consultationPreference")
+      .value,
+    location: document.getElementById("investorLocation").value,
+    bio: document.getElementById("investorBio").value,
+  };
+}
 
-    if (token && user) {
-      if (profileData) {
-        this.userData = JSON.parse(profileData);
-      }
+function collectIdeaPitcherData() {
+  return {
+    name: document.getElementById("pitcherName").value,
+    email: document.getElementById("pitcherEmail").value,
+    phone: document.getElementById("pitcherPhone").value,
+    ideaTitle: document.getElementById("ideaTitle").value,
+    ideaCategory: document.getElementById("ideaCategory").value,
+    fundingNeeded: document.getElementById("fundingNeeded").value,
+    ideaDescription: document.getElementById("ideaDescription").value,
+    targetMarket: document.getElementById("targetMarket").value,
+    documents: getFileNames("ideaDocuments"),
+    video: getFileNames("ideaVideo"),
+  };
+}
 
-      // Always show dashboard if we're on dashboard page and authenticated
-      const currentPage = window.location.pathname.split("/").pop();
-      if (currentPage === "dashboard.html") {
-        this.showDashboard();
-      }
+function collectSkilledWorkerData() {
+  return {
+    name: document.getElementById("workerName").value,
+    email: document.getElementById("workerEmail").value,
+    phone: document.getElementById("workerPhone").value,
+    skills: document.getElementById("workerSkills").value,
+    experience: document.getElementById("workerExperience").value,
+    rate: document.getElementById("workerRate").value,
+    location: document.getElementById("workerLocation").value,
+    availability: document.getElementById("workerAvailability").value,
+    bio: document.getElementById("workerBio").value,
+    certifications: document.getElementById("workerCertifications").value,
+    website: document.getElementById("workerWebsite").value,
+    portfolio: getFileNames("portfolioImages"),
+  };
+}
+
+function collectHirerData() {
+  return {
+    name: document.getElementById("hirerName").value,
+    email: document.getElementById("hirerEmail").value,
+    phone: document.getElementById("hirerPhone").value,
+    skillsNeeded: Array.from(
+      document.getElementById("skillsNeeded").selectedOptions
+    ).map((o) => o.value),
+    budget: document.getElementById("hirerBudget").value,
+    location: document.getElementById("hirerLocation").value,
+    projectDuration: document.getElementById("projectDuration").value,
+    consultationTime: document.getElementById("consultationTime").value,
+    projectDescription: document.getElementById("projectDescription").value,
+    urgency: document.getElementById("urgency").value,
+  };
+}
+
+function getFileNames(inputId) {
+  const fileInput = document.getElementById(inputId);
+  if (fileInput && fileInput.files.length > 0) {
+    return Array.from(fileInput.files).map((file) => file.name);
+  }
+  return [];
+}
+
+function validateForm(userType) {
+  let isValid = true;
+  const requiredFields = getRequiredFields(userType);
+
+  // Clear previous errors
+  document
+    .querySelectorAll(".error")
+    .forEach((el) => el.classList.remove("error"));
+  document.querySelectorAll(".error-message").forEach((el) => el.remove());
+
+  requiredFields.forEach((fieldId) => {
+    const field = document.getElementById(fieldId);
+    if (field && (!field.value || field.value.trim() === "")) {
+      showFieldError(field, "This field is required");
+      isValid = false;
+    } else if (field && field.type === "email" && !isValidEmail(field.value)) {
+      showFieldError(field, "Please enter a valid email address");
+      isValid = false;
+    } else if (field && field.type === "tel" && !isValidPhone(field.value)) {
+      showFieldError(field, "Please enter a valid phone number");
+      isValid = false;
+    } else if (
+      field &&
+      field.type === "url" &&
+      field.value &&
+      !isValidURL(field.value)
+    ) {
+      showFieldError(field, "Please enter a valid URL");
+      isValid = false;
+    }
+  });
+
+  if (!isValid) {
+    showNotification(
+      "error",
+      "Please correct the errors in the form",
+      "fas fa-exclamation-triangle"
+    );
+    // Scroll to first error
+    const firstError = document.querySelector(".error");
+    if (firstError) {
+      firstError.scrollIntoView({ behavior: "smooth", block: "center" });
     }
   }
 
-  checkAuthStatus() {
-    const token = localStorage.getItem("token");
-    const currentPage = window.location.pathname.split("/").pop();
+  return isValid;
+}
 
-    if (!token) {
-      if (
-        currentPage !== "sign-in.html" &&
-        currentPage !== "sign-up.html" &&
-        currentPage !== "index.html"
-      ) {
-        this.showMessage(
-          "You need to be signed in to access this page.",
-          "error"
-        );
-        setTimeout(() => {
-          window.location.href = "sign-in.html";
-        }, 1500);
+function getRequiredFields(userType) {
+  const commonFields = ["Name", "Email", "Phone"];
+  const fieldMaps = {
+    investor: commonFields
+      .map((f) => "investor" + f)
+      .concat(["investorBudget", "investorLocation"]),
+    "idea-pitcher": commonFields
+      .map((f) => "pitcher" + f)
+      .concat(["ideaTitle", "ideaCategory", "fundingNeeded"]),
+    "skilled-worker": commonFields
+      .map((f) => "worker" + f)
+      .concat(["workerSkills", "workerExperience", "workerRate"]),
+    hirer: commonFields
+      .map((f) => "hirer" + f)
+      .concat(["hirerBudget", "projectDescription"]),
+  };
+  return fieldMaps[userType] || [];
+}
+
+function showFieldError(field, message) {
+  field.classList.add("error");
+  const errorDiv = document.createElement("div");
+  errorDiv.className = "error-message";
+  errorDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
+  field.parentNode.appendChild(errorDiv);
+}
+
+function isValidEmail(email) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+
+function isValidPhone(phone) {
+  // Remove all spaces, dashes, and parentheses
+  const cleanPhone = phone.replace(/[\s\-\(\)]/g, "");
+
+  // Allow phone numbers with or without + sign
+  // Must be 7-15 digits (international standard)
+  const phoneRegex = /^[\+]?[\d]{7,15}$/;
+
+  return phoneRegex.test(cleanPhone);
+}
+
+function isValidURL(url) {
+  try {
+    new URL(url);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function displayDashboard() {
+  // Hide forms and user selection
+  document.querySelectorAll(".form-container").forEach((form) => {
+    form.style.display = "none";
+  });
+  document.getElementById("userTypeSelection").style.display = "none";
+
+  // Update welcome message
+  document.getElementById("welcomeMessage").textContent =
+    `Welcome back, ${profileData.name}!`;
+
+  // Update profile picture
+  updateProfilePicture();
+
+  // Show dashboard content
+  document.getElementById("dashboardContent").classList.add("active");
+
+  // Populate profile information
+  displayProfileInfo();
+
+  // Scroll to top
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function updateProfilePicture() {
+  const profilePicDisplay = document.getElementById("profilePicDisplay");
+  const profileIcon = document.getElementById("profileIcon");
+  const profileInitials = document.getElementById("profileInitials");
+
+  if (profileData.profilePicture) {
+    profilePicDisplay.innerHTML = `<img src="${profileData.profilePicture}" alt="Profile Picture" class="profile-pic">`;
+  } else if (profileData.name) {
+    const initials = profileData.name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+    profileIcon.style.display = "none";
+    profileInitials.textContent = initials;
+    profileInitials.classList.remove("hidden");
+  }
+}
+
+function displayProfileInfo() {
+  const profileInfo = document.getElementById("profileInfo");
+  const profileTitle = document.getElementById("profileTitle");
+
+  const userTypeNames = {
+    investor: "Investor",
+    "idea-pitcher": "Idea Pitcher",
+    "skilled-worker": "Skilled Worker",
+    hirer: "Hirer",
+  };
+
+  profileTitle.innerHTML = `<i class="fas fa-user-circle"></i> ${userTypeNames[profileData.userType]} Profile`;
+
+  let infoHTML = "";
+  const iconMap = getIconMap();
+
+  Object.entries(profileData).forEach(([key, value]) => {
+    if (shouldDisplayField(key, value)) {
+      const label = formatLabel(key);
+      const displayValue = formatValue(key, value);
+      const icon = iconMap[key] || "fas fa-info-circle";
+
+      infoHTML += `
+                <div class="info-item">
+                    <div class="info-label">
+                        <i class="${icon}"></i>
+                        ${label}
+                    </div>
+                    <div class="info-value">${displayValue}</div>
+                </div>
+            `;
+    }
+  });
+
+  profileInfo.innerHTML = infoHTML;
+}
+
+function shouldDisplayField(key, value) {
+  const excludedFields = [
+    "userType",
+    "profilePicture",
+    "createdAt",
+    "lastUpdated",
+  ];
+  return !excludedFields.includes(key) && value && value !== "";
+}
+
+function formatLabel(key) {
+  const labelMap = {
+    investmentAreas: "Investment Areas",
+    consultationPreference: "Consultation Preference",
+    ideaTitle: "Idea Title",
+    ideaCategory: "Idea Category",
+    fundingNeeded: "Funding Needed",
+    ideaDescription: "Idea Description",
+    targetMarket: "Target Market",
+    skillsNeeded: "Skills Needed",
+    projectDuration: "Project Duration",
+    consultationTime: "Consultation Time",
+    projectDescription: "Project Description",
+  };
+
+  return (
+    labelMap[key] ||
+    key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, " $1")
+  );
+}
+
+function formatValue(key, value) {
+  if (Array.isArray(value)) {
+    return value.join(", ");
+  }
+
+  if (key === "budget" || key === "fundingNeeded" || key === "rate") {
+    return `USD ${parseInt(value).toLocaleString()}`;
+  }
+
+  if (key === "consultationTime") {
+    return new Date(value).toLocaleString();
+  }
+
+  if (key === "website" && value) {
+    return `<a href="${value}" target="_blank" style="color: rgba(255,255,255,0.9); text-decoration: underline;">${value}</a>`;
+  }
+
+  return value;
+}
+
+function getIconMap() {
+  return {
+    name: "fas fa-user",
+    email: "fas fa-envelope",
+    phone: "fas fa-phone",
+    budget: "fas fa-dollar-sign",
+    location: "fas fa-map-marker-alt",
+    bio: "fas fa-info-circle",
+    skills: "fas fa-cogs",
+    experience: "fas fa-calendar-alt",
+    rate: "fas fa-dollar-sign",
+    availability: "fas fa-clock",
+    certifications: "fas fa-certificate",
+    website: "fas fa-globe",
+    investmentAreas: "fas fa-tags",
+    consultationPreference: "fas fa-comments",
+    ideaTitle: "fas fa-star",
+    ideaCategory: "fas fa-folder",
+    fundingNeeded: "fas fa-dollar-sign",
+    ideaDescription: "fas fa-align-left",
+    targetMarket: "fas fa-bullseye",
+    skillsNeeded: "fas fa-search",
+    projectDuration: "fas fa-hourglass-half",
+    consultationTime: "fas fa-calendar-check",
+    projectDescription: "fas fa-clipboard-list",
+    urgency: "fas fa-exclamation-triangle",
+  };
+}
+
+function initializeFileUploads() {
+  // Handle file upload labels
+  document.querySelectorAll('input[type="file"]').forEach((input) => {
+    input.addEventListener("change", function () {
+      const label = this.parentNode.querySelector(".file-upload-label");
+      if (this.files.length > 0) {
+        const fileNames = Array.from(this.files)
+          .map((f) => f.name)
+          .join(", ");
+        label.innerHTML = `<i class="fas fa-check-circle"></i> ${this.files.length} file(s) selected`;
+        label.title = fileNames;
       }
+    });
+  });
+}
+
+function initializeFormValidation() {
+  // Real-time validation
+  document.querySelectorAll("input, select, textarea").forEach((input) => {
+    input.addEventListener("blur", function () {
+      if (this.classList.contains("error")) {
+        validateSingleField(this);
+      }
+    });
+
+    input.addEventListener("input", function () {
+      if (this.classList.contains("error")) {
+        validateSingleField(this);
+      }
+      // Auto-save draft
+      debouncedAutoSave();
+    });
+  });
+}
+
+function validateSingleField(field) {
+  const errorMessage = field.parentNode.querySelector(".error-message");
+  if (errorMessage) {
+    errorMessage.remove();
+  }
+  field.classList.remove("error");
+
+  if (
+    field.hasAttribute("required") &&
+    (!field.value || field.value.trim() === "")
+  ) {
+    showFieldError(field, "This field is required");
+    return false;
+  }
+
+  if (field.type === "email" && field.value && !isValidEmail(field.value)) {
+    showFieldError(field, "Please enter a valid email address");
+    return false;
+  }
+
+  if (field.type === "tel" && field.value && !isValidPhone(field.value)) {
+    showFieldError(field, "Please enter a valid phone number");
+    return false;
+  }
+
+  if (field.type === "url" && field.value && !isValidURL(field.value)) {
+    showFieldError(field, "Please enter a valid URL");
+    return false;
+  }
+
+  return true;
+}
+
+function showNotification(type, message, icon) {
+  // Remove existing notifications
+  document.querySelectorAll(".notification").forEach((n) => n.remove());
+
+  const notification = document.createElement("div");
+  notification.className = `notification ${type}`;
+  notification.innerHTML = `
+        <i class="${icon}"></i>
+        <span>${message}</span>
+    `;
+
+  document.body.appendChild(notification);
+
+  // Show notification
+  setTimeout(() => {
+    notification.classList.add("show");
+  }, 100);
+
+  // Hide notification after 4 seconds
+  setTimeout(() => {
+    notification.classList.remove("show");
+    setTimeout(() => {
+      notification.remove();
+    }, 300);
+  }, 4000);
+}
+
+// Auto-save draft data
+function autoSaveDraft() {
+  const activeForm = document.querySelector(".form-container.active");
+  if (activeForm && currentUserType) {
+    const draftData = {};
+    activeForm.querySelectorAll("input, select, textarea").forEach((input) => {
+      if (input.type !== "file" && input.value) {
+        draftData[input.id] = input.value;
+      }
+    });
+
+    if (Object.keys(draftData).length > 0) {
+      localStorage.setItem(
+        `mindmarket-draft-${currentUserType}`,
+        JSON.stringify(draftData)
+      );
+    }
+  }
+}
+
+// Load draft data when form is shown
+function loadDraftData(userType) {
+  const draftData = localStorage.getItem(`mindmarket-draft-${userType}`);
+  if (draftData) {
+    try {
+      const data = JSON.parse(draftData);
+      Object.entries(data).forEach(([id, value]) => {
+        const input = document.getElementById(id);
+        if (input && input.type !== "file") {
+          input.value = value;
+        }
+      });
+      showNotification("info", "Draft data loaded", "fas fa-info-circle");
+    } catch (error) {
+      console.error("Error loading draft data:", error);
+    }
+  }
+}
+
+// Clear draft data
+function clearDraftData(userType) {
+  localStorage.removeItem(`mindmarket-draft-${userType}`);
+}
+
+// Clear all draft data
+function clearAllDraftData() {
+  const userTypes = ["investor", "idea-pitcher", "skilled-worker", "hirer"];
+  userTypes.forEach((type) => {
+    localStorage.removeItem(`mindmarket-draft-${type}`);
+  });
+}
+
+// Initialize keyboard shortcuts
+function initializeKeyboardShortcuts() {
+  document.addEventListener("keydown", function (e) {
+    // Ctrl/Cmd + S to save profile (if form is visible)
+    if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+      e.preventDefault();
+      const activeForm = document.querySelector(".form-container.active");
+      if (activeForm) {
+        const createBtn = activeForm.querySelector(".create-profile-btn");
+        if (createBtn && !createBtn.disabled) {
+          createBtn.click();
+        }
+      }
+    }
+
+    // Escape key to go home
+    if (e.key === "Escape") {
+      goHome();
+    }
+  });
+}
+
+function goHome() {
+  // Reset to initial state
+  currentUserType = "";
+
+  // Show user type selection
+  const userTypeSelection = document.getElementById("userTypeSelection");
+  userTypeSelection.style.display = "block";
+  userTypeSelection.style.opacity = "1";
+
+  // Hide all forms and dashboard
+  document.querySelectorAll(".form-container").forEach((form) => {
+    form.classList.remove("active");
+    form.style.display = "none";
+  });
+  document.getElementById("dashboardContent").classList.remove("active");
+
+  // Reset welcome message and profile picture
+  document.getElementById("welcomeMessage").textContent =
+    "Welcome! Please complete your profile";
+
+  const profilePicDisplay = document.getElementById("profilePicDisplay");
+  profilePicDisplay.innerHTML = `
+    <i class="fas fa-camera" id="profileIcon"></i>
+    <span id="profileInitials" class="hidden">+</span>
+  `;
+
+  // Reset forms
+  document.querySelectorAll("input, select, textarea").forEach((input) => {
+    if (input.type !== "file") {
+      input.value = "";
     } else {
-      if (currentPage === "sign-in.html" || currentPage === "sign-up.html") {
-        this.showMessage(
-          "You are already logged in. Redirecting to dashboard.",
-          "success"
-        );
-        setTimeout(() => {
-          window.location.href = "dashboard.html";
-        }, 1500);
-      } else if (currentPage === "dashboard.html") {
-        // Load saved data and show dashboard
-        this.loadSavedData();
-        this.initializeConsultationScheduling();
-      } else {
-        // For other pages, just load the data if available
-        this.loadSavedData();
-      }
+      input.value = null;
     }
-  }
+    input.classList.remove("error");
+  });
 
-  logout() {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    localStorage.removeItem("userProfileData");
-    localStorage.removeItem("profileImage");
-    localStorage.removeItem("consultationRequests");
+  // Clear error messages
+  document.querySelectorAll(".error-message").forEach((el) => el.remove());
 
-    this.userData = {};
+  // Reset file upload labels
+  document.querySelectorAll(".file-upload-label").forEach((label) => {
+    const input = label.parentNode.querySelector('input[type="file"]');
+    if (input.id === "ideaDocuments") {
+      label.innerHTML =
+        '<i class="fas fa-cloud-upload-alt"></i> Click to upload documents (PDF, DOC, TXT)';
+    } else if (input.id === "ideaVideo") {
+      label.innerHTML =
+        '<i class="fas fa-video"></i> Click to upload pitch video';
+    } else if (input.id === "portfolioImages") {
+      label.innerHTML =
+        '<i class="fas fa-camera"></i> Click to upload portfolio images';
+    }
+  });
 
-    this.showMessage("You have been logged out successfully.", "success");
+  // Reset user type buttons
+  document.querySelectorAll(".user-type-btn").forEach((btn) => {
+    btn.classList.remove("active");
+  });
+
+  // Scroll to top
+  window.scrollTo({ top: 0, behavior: "smooth" });
+
+  showNotification("success", "Returned to home page", "fas fa-home");
+}
+
+function logout() {
+  if (
+    confirm(
+      "Are you sure you want to logout? This will clear your profile data."
+    )
+  ) {
+    // Clear stored data
+    localStorage.removeItem("mindmarketProfile");
+    clearAllDraftData();
+    profileData = {};
+
+    // Reset application state
+    goHome();
+
+    showNotification(
+      "success",
+      "Logged out successfully",
+      "fas fa-sign-out-alt"
+    );
+
+    // Redirect to sign-in page
     setTimeout(() => {
       window.location.href = "sign-in.html";
-    }, 1000);
+    }, 2000);
   }
 }
 
-function showMessage(message, type) {
-  const existingMessage = document.querySelector(".message-alert");
-  if (existingMessage) {
-    existingMessage.remove();
-  }
+/**
 
-  const messageDiv = document.createElement("div");
-  messageDiv.className = `message-alert ${type}`;
-  messageDiv.innerHTML = `
-    <div style="display: flex; align-items: center; gap: 8px;">
-      <span>${type === "success" ? "✅" : "⚠️"}</span>
-      <span>${message.replace(/^[⚠️❌🎉✅]\s*/, "")}</span>
-    </div>
-  `;
+ * Hide the loading state on an element
 
-  messageDiv.style.cssText = `
-    padding: 16px 20px;
-    margin: 20px 0;
-    border-radius: 12px;
-    font-weight: 500;
-    text-align: left;
-    position: relative;
-    animation: slideIn 0.3s ease-out;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    border-left: 4px solid;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    ${
-      type === "success"
-        ? `
-          background-color: #ecfdf5; 
-          color: #065f46; 
-          border-color: #10b981;
-          border: 1px solid #a7f3d0;
-        `
-        : `
-          background-color: #fef2f2; 
-          color: #991b1b; 
-          border-color: #ef4444;
-          border: 1px solid #fca5a5;
-        `
-    }
-  `;
+ * @param {HTMLElement} element - The element to hide the loading state on
 
-  let targetElement = document.getElementById("userForm");
-  if (!targetElement) {
-    targetElement =
-      document.querySelector(".dashboard-container") || document.body;
-    if (targetElement.id === "dashboard") {
-      targetElement.insertBefore(messageDiv, targetElement.firstChild);
-    } else {
-      document.body.insertBefore(messageDiv, document.body.firstChild);
-    }
-  } else {
-    targetElement.parentNode.insertBefore(messageDiv, targetElement);
-  }
+ * @param {string} originalContent - The original content of the element to restore
 
-  const removeTime = type === "success" ? 3000 : 7000;
-  setTimeout(() => {
-    if (messageDiv.parentNode) {
-      messageDiv.style.opacity = "0";
-      messageDiv.style.transform = "translateY(-10px)";
-      setTimeout(() => messageDiv.remove(), 300);
-    }
-  }, removeTime);
-
-  messageDiv.scrollIntoView({ behavior: "smooth", block: "nearest" });
-}
-
-function resetButton(button, originalText) {
-  button.textContent = originalText;
-  button.disabled = false;
-}
-
-function saveProfileImage(file) {
-  const reader = new FileReader();
-  reader.onload = function (e) {
-    localStorage.setItem("profileImage", e.target.result);
-    const profileImg = document.getElementById("dashProfileImage");
-    if (profileImg) {
-      profileImg.src = e.target.result;
-      profileImg.style.display = "block";
-    }
-  };
-  reader.readAsDataURL(file);
-}
-
-window.addEventListener("load", function () {
-  const savedImage = localStorage.getItem("profileImage");
-  const profileImg = document.getElementById("dashProfileImage");
-
-  if (savedImage && profileImg) {
-    profileImg.src = savedImage;
-    profileImg.style.display = "block";
-  } else if (profileImg) {
-    profileImg.style.display = "none";
-  }
-});
-
-const style = document.createElement("style");
-style.textContent = `
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.message-alert {
-    transition: all 0.3s ease;
-}
-
-.message-alert:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-}
-
-button[type="submit"]:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
-.info-card {
-    background: #f9fafb;
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
-    padding: 20px;
-    margin: 16px 0;
-}
-
-.portfolio-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-    gap: 10px;
-    margin-top: 10px;
-}
-
-.portfolio-item img {
-    width: 100%;
-    height: 100px;
-    object-fit: cover;
-    border-radius: 4px;
-}
-
-.modal {
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.modal-content {
-    background-color: #fefefe;
-    border-radius: 12px;
-    width: 90%;
-    max-width: 600px;
-    max-height: 80vh;
-    overflow: hidden;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-    animation: fadeIn 0.3s ease-out;
-}
-
-.modal-header {
-    padding: 20px;
-    background-color: #f8fafc;
-    border-bottom: 1px solid #e2e8f0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.modal-header h3 {
-    margin: 0;
-    color: #333;
-}
-
-.close {
-    color: #aaa;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: color 0.2s;
-}
-
-.close:hover {
-    color: #000;
-}
-
-.send-btn, .schedule-btn, .edit-btn, .submit-btn, .logout-btn {
-    padding: 10px 20px;
-    background-color: #3b82f6;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: background-color 0.2s ease-in-out;
-}
-
-.send-btn:hover, .schedule-btn:hover, .edit-btn:hover, .submit-btn:hover, .logout-btn:hover {
-    background-color: #2563eb;
-}
-
-.consultation-form {
-    padding: 20px;
-    background-color: #fff;
-}
-
-.consultation-form .form-group {
-    margin-bottom: 15px;
-}
-
-.consultation-form label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: 500;
-    color: #333;
-}
-
-.consultation-form input, 
-.consultation-form select, 
-.consultation-form textarea {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    font-size: 14px;
-    box-sizing: border-box;
-}
-
-.checkbox-group {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 8px;
-    margin-top: 8px;
-}
-
-.checkbox-label {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    padding: 10px;
-    border-radius: 6px;
-    border: 1px solid #e5e7eb;
-    transition: background-color 0.2s, border-color 0.2s;
-    color: #4a5568;
-}
-
-.checkbox-label:hover {
-    background-color: #f3f4f6;
-    border-color: #a7f3d0;
-}
-
-.checkbox-label input[type="checkbox"] {
-    margin-right: 8px;
-    accent-color: #3b82f6;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.form-group input.error,
-.form-group select.error,
-.form-group textarea.error {
-    border-color: #ef4444 !important;
-    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
-}
-
-.form-group input.success,
-.form-group select.success,
-.form-group textarea.success {
-    border-color: #10b981 !important;
-    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
-}
-
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.container {
-    max-width: 800px;
-    margin: 40px auto;
-    padding: 20px;
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-}
-
-.section {
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 20px;
-}
-
-.section h2, .section h3 {
-    color: #333;
-    margin-top: 0;
-    margin-bottom: 15px;
-    border-bottom: 1px solid #e2e8f0;
-    padding-bottom: 10px;
-}
-
-.form-row {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 20px;
-    margin-bottom: 15px;
-}
-@media (min-width: 600px) {
-    .form-row {
-        grid-template-columns: 1fr 1fr;
-    }
-}
-
-.image-preview, .file-preview, .video-preview {
-    margin-top: 10px;
-    border: 1px dashed #d1d5db;
-    padding: 10px;
-    border-radius: 8px;
-    min-height: 50px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    justify-content: center;
-    align-items: center;
-    color: #6b7280;
-}
-
-.image-preview img {
-    max-width: 100px;
-    max-height: 100px;
-    object-fit: cover;
-    border-radius: 50%;
-    border: 2px solid #e5e7eb;
-}
-
-.image-preview-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-    gap: 10px;
-    margin-top: 10px;
-}
-
-.dashboard-container {
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    padding: 30px;
-}
-
-.dashboard-header {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 30px;
-    gap: 20px;
-}
-
-.profile-section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-}
-
-.profile-img {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 4px solid #3b82f6;
-    margin-bottom: 15px;
-}
-
-.profile-info h1 {
-    margin: 0 0 5px 0;
-    color: #333;
-    font-size: 2em;
-}
-
-.profile-info p {
-    margin: 0;
-    color: #6b7280;
-}
-
-.user-type {
-    font-weight: 600;
-    color: #2563eb;
-}
-
-.header-actions {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    justify-content: center;
-}
-
-.dashboard-content .info-card {
-    background: #f9fafb;
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 20px;
-}
-
-.dashboard-content .info-card h2 {
-    color: #333;
-    margin-top: 0;
-    margin-bottom: 15px;
-    border-bottom: 1px solid #e2e8f0;
-    padding-bottom: 10px;
-}
-
-.dashboard-content .info-card p {
-    margin: 8px 0;
-    color: #4a5568;
-}
-
-.dashboard-content .info-card strong {
-    color: #333;
-}
-
-.documents-list, .pitch-video {
-    margin-top: 15px;
-    padding: 15px;
-    background: #f0f4f8;
-    border-radius: 8px;
-    border: 1px solid #e0e7ee;
-}
-
-.document-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 0;
-    color: #4a5568;
-}
-.document-item span:first-child {
-    font-size: 1.2em;
-}
-.document-item span:last-child {
-    font-size: 0.9em;
-    color: #6b7280;
-}
-
-.pitch-video video {
-    width: 100%;
-    max-width: 400px;
-    height: auto;
-    border-radius: 8px;
-    margin-top: 10px;
-}
-
-.header {
-    background-color: #fff;
-    padding: 15px 0;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    margin-bottom: 20px;
-}
-
-.header-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.logo {
-    height: 40px;
-}
-
-.login-link, .signup-link {
-    text-align: center;
-    margin-top: 20px;
-    color: #6b7280;
-}
-
-.login-link a, .signup-link a {
-    color: #3b82f6;
-    text-decoration: none;
-    font-weight: 600;
-}
-
-.login-link a:hover, .signup-link a:hover {
-    text-decoration: underline;
-}
-`;
-document.head.appendChild(style);
-
-document.addEventListener("DOMContentLoaded", () => {
-  new UserProfileManager();
-});
+ */
