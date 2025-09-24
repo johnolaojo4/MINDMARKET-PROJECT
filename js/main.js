@@ -135,3 +135,72 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+
+// File upload functionality
+        const uploadArea = document.getElementById('uploadArea');
+        const uploadButton = uploadArea.querySelector('.upload-button');
+        
+        uploadButton.addEventListener('click', function() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    uploadArea.querySelector('.upload-text').innerHTML = 
+                        `<strong>File Selected:</strong><br>${file.name}`;
+                }
+            };
+            input.click();
+        });
+
+        // Drag and drop functionality
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            this.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                this.querySelector('.upload-text').innerHTML = 
+                    `<strong>File Selected:</strong><br>${files[0].name}`;
+            }
+        });
+
+        // Form submission
+        document.getElementById('ideaForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Idea submitted successfully!');
+        });
+
+        // Check authentication before allowing uploads
+document.addEventListener('DOMContentLoaded', function() {
+  // Handle upload idea buttons on homepage
+  const uploadButtons = document.querySelectorAll('.upload-idea-btn');
+  
+  uploadButtons.forEach(button => {
+    button.addEventListener('click', function(e) {
+      e.preventDefault();
+      
+      const savedProfile = localStorage.getItem("mindmarketProfile");
+      if (!savedProfile) {
+        // User not authenticated - show message and redirect to sign-up
+        alert('Please create your profile first to upload ideas');
+        setTimeout(() => {
+          window.location.href = 'sign-up.html';
+        }, 1000);
+      } else {
+        // User authenticated - go to upload page
+        window.location.href = 'upload.html';
+      }
+    });
+  });
+});

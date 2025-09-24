@@ -16,7 +16,7 @@ header {
   height: 100dvh;
   position: relative;
   overflow: hidden;
-  background-image: url("../images/Hero.png");
+  background-image: url("../images/Heroo.png");
   background-size: cover;
   background-position: center;
 }
@@ -53,7 +53,7 @@ nav {
   color: #ffffff;
   font-weight: 400;
   margin: 0 12px;
-  font-size: 13px;
+  font-size: 16px;
   transition: color 0.3s;
 }
 
@@ -265,9 +265,7 @@ nav {
   width: calc(33.33% - 10px);
   padding: 20px;
   text-align: left;
-  transition:
-    transform 0.3s,
-    box-shadow 0.3s;
+  transition: transform 0.3s, box-shadow 0.3s;
   cursor: pointer;
 }
 
@@ -366,9 +364,7 @@ nav {
 .card-3,
 .card-4 {
   text-align: center;
-  transition:
-    transform 0.3s,
-    box-shadow 0.3s;
+  transition: transform 0.3s, box-shadow 0.3s;
   cursor: pointer;
   width: 100%;
   margin-top: 6px;
@@ -882,9 +878,7 @@ nav {
 .faq-answer {
   max-height: 0;
   overflow: hidden;
-  transition:
-    max-height 0.3s ease,
-    padding 0.3s ease;
+  transition: max-height 0.3s ease, padding 0.3s ease;
   background: white;
 }
 
