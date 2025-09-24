@@ -30,7 +30,7 @@ body {
 }
 
 .container {
-  max-width: 400px;
+  max-width: 500px;
   width: 100%;
   text-align: center;
 }
@@ -49,19 +49,26 @@ body {
 
 .social-login button {
   flex: 1;
-  padding: 12px;
+  padding: 4px;
   border-radius: 8px;
   font-weight: 500;
   border: 1px solid #ddd;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .google-btn {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   gap: 8px;
-  background: #fff;
+  background: #0d78f2;
+}
+
+.google-btn p {
+  color: #fff;
 }
 
 .divider {
@@ -118,6 +125,10 @@ select {
   text-align: left;
 }
 
+.terms input {
+  width: 30%;
+}
+
 .terms a {
   color: #2563eb;
   text-decoration: none;
@@ -142,7 +153,7 @@ select {
 }
 
 .create-account-btn {
-  width: 100%;
+  width: 30%;
   padding: 14px;
   background: #000;
   color: #fff;
