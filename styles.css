@@ -297,7 +297,7 @@ body {
 }
 
 .profile-card {
-  background: linear-gradient(45deg, #667eea, #011985);
+  background-color: #023588;
   color: white;
   padding: 2rem;
   border-radius: 15px;
