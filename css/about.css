@@ -164,7 +164,7 @@ nav {
 }
 
 .content-section .main-title {
-  font-size: 4rem;
+  font-size: 3rem;
   font-weight: 800;
   color: #000;
   margin-bottom: 40px;
@@ -198,7 +198,7 @@ nav {
 }
 
 .main-title {
-  font-size: 4rem;
+  font-size: 3.5rem;
   font-weight: 700;
   color: white;
   line-height: 1.2;
@@ -343,7 +343,7 @@ nav {
 .stat-label {
   font-size: 1.1rem;
   font-weight: 500;
-  color: #4285f4;
+  color: #696969;
   text-transform: capitalize;
   letter-spacing: 0.5px;
 }
