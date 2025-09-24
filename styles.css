@@ -43,6 +43,21 @@ body {
   transform: scale(1.05);
 }
 
+.links a,
+.auth-links a {
+  text-decoration: none;
+  color: #000;
+  font-weight: 400;
+  margin: 0 12px;
+  font-size: 13px;
+  transition: color 0.3s;
+}
+
+.links a:hover,
+.auth-links a:hover {
+  color: #696969;
+}
+
 .logout-btn {
   background: linear-gradient(45deg, #ff6b6b, #ee5a24);
   color: white;
@@ -153,7 +168,7 @@ body {
 }
 
 .form-container h3 {
-  color: #667eea;
+  color: #2c73e5;
   margin-bottom: 2rem;
   font-size: 1.8rem;
   display: flex;
@@ -183,7 +198,7 @@ body {
 }
 
 .form-group label i {
-  color: #667eea;
+  color: #2c73e5;
   width: 20px;
 }
 
@@ -265,7 +280,7 @@ body {
 }
 
 .create-profile-btn {
-  background: linear-gradient(45deg, #667eea, #764ba2);
+  background-color: #2c73e5;
   color: white;
   border: none;
   padding: 1rem 2rem;
