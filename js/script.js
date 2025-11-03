@@ -51,8 +51,9 @@ function initializeApp() {
   initializeKeyboardShortcuts();
 }
 
-function selectUserType(type) {
+function selectUserType(type, event) { // <-- Added 'event' parameter
   currentUserType = type;
+
 
   // Hide all forms
   document.querySelectorAll(".form-container").forEach((form) => {
@@ -137,16 +138,11 @@ function handleProfilePicUpload(event) {
 
       // Store image data
       profileData.profilePicture = e.target.result;
-
-            // Store image data
-      profileData.profilePicture = e.target.result;
       
       // Save to localStorage immediately
       if (profileData.userType) {
         localStorage.setItem("mindmarketProfile", JSON.stringify(profileData));
       }
-
-      showNotification(
 
       showNotification(
         "success",
