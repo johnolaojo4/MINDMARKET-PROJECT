@@ -61,25 +61,25 @@
         <!-- User Type Selection -->
         <div id="userTypeSelection">
           <div class="user-type-selector">
-            <button class="user-type-btn" onclick="selectUserType('investor')">
+            <button class="user-type-btn" onclick="selectUserType('investor', event)">
               <i class="fas fa-chart-line"></i>
               Investor
             </button>
             <button
               class="user-type-btn"
-              onclick="selectUserType('idea-pitcher')"
+              onclick="selectUserType('idea-pitcher', event)"
             >
               <i class="fas fa-lightbulb"></i>
               Idea Pitcher
             </button>
             <button
               class="user-type-btn"
-              onclick="selectUserType('skilled-worker')"
+              onclick="selectUserType('skilled-worker', event)"
             >
               <i class="fas fa-tools"></i>
               Skilled Worker
             </button>
-            <button class="user-type-btn" onclick="selectUserType('hirer')">
+            <button class="user-type-btn" onclick="selectUserType('hirer', event)">
               <i class="fas fa-handshake"></i>
               Hirer
             </button>
