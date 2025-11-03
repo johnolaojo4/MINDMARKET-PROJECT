@@ -138,6 +138,16 @@ function handleProfilePicUpload(event) {
       // Store image data
       profileData.profilePicture = e.target.result;
 
+            // Store image data
+      profileData.profilePicture = e.target.result;
+      
+      // Save to localStorage immediately
+      if (profileData.userType) {
+        localStorage.setItem("mindmarketProfile", JSON.stringify(profileData));
+      }
+
+      showNotification(
+
       showNotification(
         "success",
         "Profile picture uploaded successfully!",
@@ -234,6 +244,7 @@ function createProfile(userType) {
 
 function collectInvestorData() {
   return {
+    profilePicture: profileData.profilePicture || null,
     name: document.getElementById("investorName").value,
     email: document.getElementById("investorEmail").value,
     phone: document.getElementById("investorPhone").value,
@@ -250,6 +261,7 @@ function collectInvestorData() {
 
 function collectIdeaPitcherData() {
   return {
+    profilePicture: profileData.profilePicture || null,
     name: document.getElementById("pitcherName").value,
     email: document.getElementById("pitcherEmail").value,
     phone: document.getElementById("pitcherPhone").value,
@@ -265,6 +277,7 @@ function collectIdeaPitcherData() {
 
 function collectSkilledWorkerData() {
   return {
+    profilePicture: profileData.profilePicture || null,
     name: document.getElementById("workerName").value,
     email: document.getElementById("workerEmail").value,
     phone: document.getElementById("workerPhone").value,
@@ -282,6 +295,7 @@ function collectSkilledWorkerData() {
 
 function collectHirerData() {
   return {
+    profilePicture: profileData.profilePicture || null,
     name: document.getElementById("hirerName").value,
     email: document.getElementById("hirerEmail").value,
     phone: document.getElementById("hirerPhone").value,
